@@ -1,6 +1,6 @@
 {
-  "name": "Wavpack",
-  "description": "Wavpack: Build a single .json from a fodler of .wav / mp3 files",
+  "name": "wavpack",
+  "description": "Wavpack: Generate JSON from WAV and MP3 files",
   "version": "0.0.1",
   "main": "index.js",
   "bin": {

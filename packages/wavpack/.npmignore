@@ -1,0 +1,4 @@
+_*
+*.log
+*.lock
+.hardlinks

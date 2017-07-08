@@ -12,6 +12,7 @@ const destPath = process.argv[3] || '.'
 
 if (!srcPath) usage()
 
+
 const files = glob.sync(path.join(srcPath, '**/*.wav'), {
   ignore: ['**/.git/**', `**/node_modules/**`]
 })
@@ -21,13 +22,14 @@ if (!files.length) {
   process.exit(1)
 }
 
-const instruments = {
-  // [name]: {
-  //   [note]: [path to base64]
-  // }
-}
+/**
+ * Instruments
+ *
+ * @type {Object} { name: { note: path to base64 }
+ */
+const instruments = {}
 
-Promise.all(files.map(srcFile => {
+Promise.all(files.map((srcFile, fileIndex) => {
 
   const fileRelative = path.relative(srcPath, srcFile)
 
@@ -62,11 +64,12 @@ Promise.all(files.map(srcFile => {
 
     reader.on('format', (format) => {
 
-      //console.log(`channels: ${format.channels}, sample rate: ${format.sampleRate}, byte rate: ${format.byteRate}, bit depth: ${format.bitDepth}`) //'WAV format: %j', format
+      if (fileIndex===0) {
+        console.log(`Channels: ${format.channels} - Sample rate: ${format.sampleRate} - Byte rate: ${format.byteRate} - Bit depth: ${format.bitDepth}`)
+      }
 
-      //format.bitRate = 128
-      //format.outSampleRate = 22050
-      //format.mode = lame.STEREO // STEREO (default), JOINTSTEREO, DUALCHANNEL or MONO
+      format.mode = lame.STEREO // STEREO (default), JOINTSTEREO, DUALCHANNEL or MONO
+      //format.mode = lame.MONO
 
       const encoder = new lame.Encoder(format)
       const stream = reader.pipe(encoder)
