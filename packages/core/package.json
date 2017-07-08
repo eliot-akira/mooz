@@ -1,0 +1,14 @@
+{
+  "name": "mooz",
+  "description": "Mooz: Core",
+  "version": "0.0.2",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "mna.api": "*",
+    "mna.log": "*"
+  },
+  "repository": "https://github.com/eliot-akira/mooz/packages/core",
+  "author": "Eliot Akira",
+  "license": "MIT"
+}

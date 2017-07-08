@@ -1,0 +1,16 @@
+{
+  "name": "mooz.explore",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Modules for music apps",
+  "repository": "https://github.com/eliot-akira/mooz/packages/explore",
+  "main": "build/index.js",
+  "author": "Eliot Akira",
+  "license": "MIT",
+  "scripts": {
+    "dev": "mnao babel dev",
+    "build": "mnao babel build",
+    "test": "mnao test",
+    "prepublish": "yarn run build"
+  }
+}

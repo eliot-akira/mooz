@@ -1,0 +1,23 @@
+{
+  "name": "mooz",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Modules for music apps",
+  "repository": "https://github.com/eliot-akira/mooz",
+  "main": "build/index.js",
+  "author": "Eliot Akira",
+  "license": "MIT",
+  "scripts": {
+    "boot": "lerna bootstrap --hoist",
+    "dev": "run/dev",
+    "build": "run/build",
+    "clean": "run/clean",
+    "test": "run/test",
+    "bump": "run/bump",
+    "pub": "run/publish"
+  },
+  "devDependencies": {
+    "lerna": "^2.0.0-rc.5",
+    "mna.babel": "*"
+  }
+}

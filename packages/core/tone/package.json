@@ -1,0 +1,11 @@
+{
+  "name": "mooz.tone",
+  "description": "Mooz: Tone",
+  "version": "0.0.2",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {},
+  "repository": "https://github.com/eliot-akira/mooz/packages/tone",
+  "author": "Eliot Akira",
+  "license": "MIT"
+}
