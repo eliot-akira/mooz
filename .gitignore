@@ -1,7 +1,20 @@
 
+# Ignore bigger files until ready
+
+packages/static/instruments
+!packages/static/instruments/
+packages/static/instruments/*
+!packages/static/instruments/metronome*
+
+packages/static/scores
+
+
+# Default ignore
+
 build
 
 node_modules
 _*
 *.log
+*.lock
 .hardlinks

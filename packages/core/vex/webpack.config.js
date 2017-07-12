@@ -8,7 +8,7 @@ module.exports = function (env = {}) {
   const { version } = thisPackage
 
   const config = {
-    entry: './src/index',
+    entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'build'),
       filename: 'vex-' + version + '.js',
@@ -27,10 +27,13 @@ module.exports = function (env = {}) {
         }
       }]
     },
-    plugins: [new webpack.optimize.UglifyJsPlugin({
-      sourceMap: env.production
-    })]
+    plugins: []
+  }
 
+  if (env.production) {
+    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+      sourceMap: true
+    }))
   }
 
   return config

@@ -42,8 +42,11 @@ function createPlayer(ac, source, options) {
    * @namespace
    */
   let player = { context: ac, out: out, opts: opts }
+
   if (source instanceof AudioBuffer) player.buffer = source
   else player.buffers = source
+
+  player.volume = opts.gain || 1
 
   /**
    * Start a sample buffer.
@@ -67,7 +70,7 @@ function createPlayer(ac, source, options) {
 
   // NOTE: Same arguments as MultiPlayer
 
-  player.start = function (name, when, offset, duration, options) {
+  player.start = function (name, when, offset, duration, options = {}) {
     // if only one buffer, reorder arguments
     //if (player.buffer && name !== null) return player.start(null, name, when)
 
@@ -80,7 +83,11 @@ function createPlayer(ac, source, options) {
       return
     }
 
-    let opts = options || EMPTY
+    let opts = options
+    opts.gain = typeof options.volume!=='undefined' ? options.volume : player.volume
+
+    //if (opts.gain>1) opts.gain = 1
+    //console.log('GAIN', name, opts.gain, { player, options })
 
     when = Math.max(ac.currentTime, when || 0) // AudioContext time
       //ac.currentTime + (when || 0) // Time from now
@@ -152,6 +159,22 @@ function createPlayer(ac, source, options) {
     let fn = player['on' + event]
     if (fn) fn(when, obj, opts)
   }
+
+  player.setVolume = volume => {
+    //console.log('Set VOLUME', volume)
+    player.volume = volume
+  }
+  player.setMute = mute => {
+    if (!mute) {
+      player.setVolume(player.previousVolume || .8)
+    } else {
+      if (player.volume) {
+        player.previousVolume = player.volume
+      }
+      player.volume = 0
+    }
+  }
+
 
   return player
 

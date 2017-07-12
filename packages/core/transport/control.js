@@ -15,12 +15,13 @@ export const pause = (exact = false) => {
   if (!exact) {
     const { bar, beat } = mooz.getPosition()
     const time = `${bar}:${beat}:0` // `${bar}:0:0`
-    log('Pause at closes beat', time)
+    log('Pause at closest beat', time)
     mooz.setPosition(time)
   }
 }
 
 export const stop = () => {
+  log('STOP')
   mooz.transport.stop()
   mooz.status = mooz.statusTypes.stopped
 }

@@ -6,7 +6,8 @@
   "scripts": {},
   "dependencies": {
     "mna.api": "*",
-    "mna.log": "*"
+    "mna.log": "*",
+    "mna.events": "*"
   },
   "repository": "https://github.com/eliot-akira/mooz/packages/core",
   "author": "Eliot Akira",

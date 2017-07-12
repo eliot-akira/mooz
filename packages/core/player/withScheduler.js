@@ -4,14 +4,18 @@ const log = require('core/log')('mooz/player/withScheduler', (...args) => consol
 
 export default function withScheduler(schedule, player) {
 
+  if (!player) {
+    return log.error('Schedule needs a player')
+  }
+
   if (!Array.isArray(schedule)) {
-    log.error('Schedule must be an array of event objects')
+    return log.error('Schedule must be an array of event objects')
   }
 
   if (!player.schedule) {
-    log('Set first schedule', schedule, player)
+    log('Set first schedule', player.name, schedule)
   } else {
-    log('Set next schedule', schedule, player)
+    log('Set next schedule', player.name, schedule)
   }
 
   player.schedule = schedule
@@ -72,13 +76,12 @@ export default function withScheduler(schedule, player) {
       player.scheduler[key] = options[key]
     })
   }
-
   player.clearLoop = () => player.setLoop(defaultLoopOptions)
 
   player.setLoop(player)
 
 
-  log.info('With scheduler', player)
+  //log.info('With scheduler', player)
 
   return player
 }

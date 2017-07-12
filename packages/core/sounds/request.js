@@ -9,7 +9,7 @@ export default async function requestSoundJson(soundPath) {
 
   const res =  await api.get(soundPath)
 
-  log('Loaded sounds JSON', res)
+  log('Loaded sounds JSON', Object.keys(res))
 
   return res
 }

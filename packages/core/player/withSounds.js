@@ -10,18 +10,20 @@ export default async function withSounds(sounds, player = {}) {
 
   const rawBuffers = await loadSounds(sounds)
 
-  player.buffers = new mooz.tone.Buffers()
+  player.rawBuffers = rawBuffers
 
+  /* Unused
+  // For Tone.MultiPlayer
+  player.buffers = new mooz.tone.Buffers()
   Object.keys(rawBuffers).forEach((key) => {
     player.buffers.add(key, new mooz.tone.Buffer(rawBuffers[key]))
-  })
+  })*/
 
   // Pass to audio player
 
-  withAudioPlayer(player.buffers, player)
+  withAudioPlayer(player)
 
-  log.info('With sounds', player)
+  log.info('Player loaded with sounds', player.name)
 
   return player
 }
-

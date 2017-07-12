@@ -51,5 +51,5 @@ export async function loadPlayer(name, definition) {
     player.setSchedule(definition.schedule) // Pass new or previous schedule
   }
 
-  log('Player loaded', player)
+  log('Player loaded', player.name)
 }

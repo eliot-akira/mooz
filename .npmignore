@@ -3,3 +3,6 @@ docs
 _*
 *.log
 .hardlinks
+
+packages/static/instruments/*
+!packages/static/instruments/metronome

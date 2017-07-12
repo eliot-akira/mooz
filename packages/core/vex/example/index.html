@@ -1,6 +1,54 @@
+
+<style>
+  #root {
+    overflow: hidden;
+    width: 100%;
+    padding: 0; margin: 0;
+  }
+</style>
+
 <div id="root"></div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="static/vex-0.0.1.js"></script>
+
 <script>
+
+  var VexDocument = null;
+  var VexFormatter = null;
+
+  $.ajax({
+    url: "example.xml",
+    success: function(data) {
+
+      var start = new Date().getTime(); // time execution
+
+      VexDocument = new Vex.Flow.Document(data);
+
+      console.log('VexDocument', VexDocument);
+
+      var content = $("#root")[0];
+
+      if (VexDocument) {
+        VexFormatter = VexDocument.getFormatter();
+        VexFormatter.draw(content);
+      }
+
+      var elapsed = (new Date().getTime() - start)/1000;
+      var debouncedResize = null;
+
+      $(window).resize(function() {
+        if (! debouncedResize)
+          debouncedResize = setTimeout(function() {
+            VexFormatter.draw(content);
+            debouncedResize = null;
+          }, 500);
+      });
+    }
+  });
+
+
+/*
 
 VF = Vex.Flow;
 
@@ -23,5 +71,7 @@ stave.addClef("treble").addTimeSignature("4/4");
 
 // Connect it to the rendering context and draw!
 stave.setContext(context).draw();
+
+*/
 
 </script>
