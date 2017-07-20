@@ -1,46 +1,54 @@
-import mooz from '../mooz'
+import mooz from '../base'
+import { playerOffset } from '../constants'
 
-const log = require('core/log')('mooz/player/withScheduler', (...args) => console.log(...args))
+const log = require('core/log')('mooz/player/withScheduler',
+  false //(...args) => console.log(...args)
+)
 
-export default function withScheduler(schedule, player) {
+export default function withScheduler({ schedule, player }, { actions }) {
 
   if (!player) {
     return log.error('Schedule needs a player')
   }
 
-  if (!Array.isArray(schedule)) {
-    return log.error('Schedule must be an array of event objects')
-  }
+  player.setSchedule = newSchedule => {
 
-  if (!player.schedule) {
-    log('Set first schedule', player.name, schedule)
-  } else {
-    log('Set next schedule', player.name, schedule)
-  }
+    log(`${!player.schedule?'First':'Next'} schedule`, player.name, newSchedule)
 
-  player.schedule = schedule
+    player.schedule = newSchedule
 
-  if (player.scheduler) player.scheduler.dispose()
-
-  player.scheduler = mooz.createScheduler(({ time, event, position, onTime }) => {
-
-    // Called for each note in schedule
-
-    if (event.note && player.audioPlayer) {
-
-      const { note, offset = 0, duration } = event
-
-      player.play(note, time, offset, duration)
+    if (player.scheduler) {
+      //player.scheduler.dispose()
+      player.scheduler.removeAll()
+      newSchedule.forEach(event => {
+        player.scheduler.add(event.time, event)
+      })
+      player.setLoop(player)
+      return
     }
 
-    onTime(() => {
-      const data = { event, position, player }
-      mooz.emit('play', data)
-      player.emit('play', data)
-      if (player.callback) player.callback(data)
-    })
+    player.scheduler = actions.createScheduler({
+      schedule: newSchedule,
+      // Called for each event in schedule
+      callback: ({ when, duration, position, event, onTime }) => {
 
-  }, schedule)
+        // Pass notes
+        if (player.play) player.play({ ...event,
+          when, duration
+        })
+
+        if (player.callback) onTime(() => {
+          const data = { event, position, player }
+          //mooz.emit('play', data)
+          //player.emit('play', data)
+          //if (player.callback)
+          player.callback(data)
+        })
+      }
+    })
+  }
+
+  player.setSchedule(schedule)
 
   // Player shortcuts
 
@@ -49,11 +57,11 @@ export default function withScheduler(schedule, player) {
 
   // Offset
 
-  player.setOffset = (offset = 0) => {
+  player.setOffset = (offset = playerOffset) => {
     player.scheduler.start(offset)
   }
 
-  player.setOffset(player.offset) // Start at a given time
+  player.setOffset(player.offset)
 
 
   // Loop

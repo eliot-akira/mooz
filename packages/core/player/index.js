@@ -1,12 +1,10 @@
-import mooz from '../mooz'
+import mooz from '../base'
 import withSounds from './withSounds'
 import withScheduler from './withScheduler'
 
-mooz.extend({
-  players: {}
-})
-
-const log = require('core/log')('mooz/player', (...args) => console.log(...args))
+const log = require('core/log')('mooz/player',
+  false //(...args) => console.log(...args)
+)
 
 /**
  * Load single player
@@ -16,14 +14,14 @@ const log = require('core/log')('mooz/player', (...args) => console.log(...args)
  * @return {Promise}
  */
 
-export async function loadPlayer(name, definition) {
+export async function loadPlayer({ name, definition }, { actions }) {
 
   if (!name) {
     log.error('Player needs a name')
     return
   }
 
-  log('loadPlayer', name, definition)
+  log.ok('loadPlayer', name, definition)
 
   // Player is an event emitter: extend previous instance if any
 
@@ -37,7 +35,7 @@ export async function loadPlayer(name, definition) {
 
   // Sounds
 
-  player.setSounds = sounds => withSounds(sounds, player)
+  player.setSounds = sounds => withSounds({ sounds, player }, { actions })
 
   if (definition.sounds) {
     await player.setSounds(definition.sounds)
@@ -45,11 +43,13 @@ export async function loadPlayer(name, definition) {
 
   // Scheduler
 
-  player.setSchedule = schedule => withScheduler(schedule, player)
+  player.setSchedule = schedule => withScheduler({ schedule, player }, { actions })
 
   if (definition.schedule) {
     player.setSchedule(definition.schedule) // Pass new or previous schedule
   }
 
   log('Player loaded', player.name)
+
+  return player
 }

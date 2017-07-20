@@ -1,15 +1,14 @@
-import mooz from './mooz'
-import vex from './vex/src'
+import mooz from './base'
+import * as context from './state'
+import { createContext } from 'core/state'
+
+console.log('MOOZ CONTEXT', context)
+
+const { state, actions } = createContext(context)
 
 mooz.extend({
-  ...require('./status'),
-  ...require('./transport'),
-  ...require('./player'),
-  ...require('./load'),
-  ...require('./metronome'),
-  vex
+  state,
+  ...actions
 })
-
-mooz.metronome.init()
 
 module.exports = mooz

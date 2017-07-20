@@ -1,27 +1,26 @@
-import mooz from '../mooz'
+import mooz from '../base'
 import createPlayer from '../samplePlayer'
 
-const log = require('core/log')('mooz/player/withAudioPlayer', (...args) => console.log(...args))
+const log = require('core/log')('mooz/player/withAudioPlayer',
+  false // (...args) => console.log(...args)
+)
 
-export default function withAudioPlayer(player = {}) {
-
-  const { rawBuffers: buffers } = player
+export default function withAudioPlayer({ player = {} }, { actions }) {
 
   /* Unused: for Tone.MultiPlayer
-  const { rawBuffers: buffers } = player
   //if (player.audioPlayer) player.audioPlayer.dispose()
-  player.audioPlayer = new mooz.tone.MultiPlayer(buffers).toMaster() //.sync()
+  player.audioPlayer = new mooz.tone.MultiPlayer(player.preparedBuffers).toMaster() //.sync()
   */
 
   player.audioPlayer =
-    createPlayer(mooz.context, buffers)
+    createPlayer(mooz.context, player.buffers)
       .connect(mooz.context.destination)
 
 
   // Shortcut methods
 
   player.play = (...args) => {
-    player.audioPlayer.start.call(player.audioPlayer, ...args)
+    player.audioPlayer.play.call(player.audioPlayer, ...args)
   }
 
   player.setMute = mute => {
@@ -46,22 +45,6 @@ export default function withAudioPlayer(player = {}) {
 
 
   log.info('With audio player', player)
-
-  log.warn('Play ghost note to initialize buffers', player.name)
-
-  if (buffers) {
-
-    // Find first sound
-
-    const firstSoundName = Object.keys(buffers)[0]
-
-    if (firstSoundName) {
-      player.setMute(true)
-      player.play(firstSoundName, 0, 0, 0)
-      player.setMute(false)
-      log.success('First sound', firstSoundName)
-    }
-  }
 
   return player
 }

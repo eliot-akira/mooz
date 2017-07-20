@@ -49,7 +49,7 @@ function createPlayer(ac, source, options) {
   player.volume = opts.gain || 1
 
   /**
-   * Start a sample buffer.
+   * Play a note from buffer(s)
    *
    * The returned object has a function `stop(when)` to stop the sound.
    *
@@ -68,51 +68,45 @@ function createPlayer(ac, source, options) {
    * drums.start('snare', 0, { gain: 0.3 })
    */
 
-  // NOTE: Same arguments as MultiPlayer
+  player.play = function (props) {
 
-  player.start = function (name, when, offset, duration, options = {}) {
-    // if only one buffer, reorder arguments
-    //if (player.buffer && name !== null) return player.start(null, name, when)
+    if (typeof props!=='object') {
+      console.warn('Bad argument for player: must be an object', props)
+      return
+    }
 
-    let buffer = name ? player.buffers[name] : player.buffer
+    const {
+      note, notes,
+      when = 0,
+      duration,
+      volume = 1
+    } = props
+
+    const buffer = note ? player.buffers[note] : player.buffer
+
     if (!buffer) {
-      console.warn('Buffer not found', name)
+      console.warn('Buffer not found', note)
       return
     } else if (!connected) {
       console.warn('SamplePlayer not connected to any node.')
       return
     }
 
-    let opts = options
-    opts.gain = typeof options.volume!=='undefined' ? options.volume : player.volume
+    const gain = volume * player.volume // Note volume scaled to player volume
 
-    //if (opts.gain>1) opts.gain = 1
-    //console.log('GAIN', name, opts.gain, { player, options })
-
-    when = Math.max(ac.currentTime, when || 0) // AudioContext time
+    const contextTime = Math.max(ac.currentTime, when) // AudioContext time
       //ac.currentTime + (when || 0) // Time from now
 
-    player.emit('start', when, name, opts)
-    let node = createNode(name, buffer, opts)
-    node.id = track(name, node)
-    node.env.start(when)
-    node.source.start(when)
-    player.emit('started', when, node.id, node)
-    if (duration) node.stop(when + duration)
+    const node = createNode(note, buffer, opts)
+    node.id = track(note, node)
+    node.env.start(contextTime)
+    node.source.start(contextTime)
+
+    if (duration) node.stop(contextTime + duration)
+
     return node
   }
 
-  // NOTE: start will be override so we can't copy the function reference
-  // this is obviously not a good design, so this code will be gone soon.
-  /**
-   * An alias for `player.start`
-   * @see player.start
-   * @since 0.3.0
-   */
-  player.play = function (name, when, options) {
-//console.log('Player play', name, when, options)
-    return player.start(name, when, options)
-  }
 
   /**
    * Stop some or all samples
@@ -154,27 +148,20 @@ function createPlayer(ac, source, options) {
     return player
   }
 
-  player.emit = function (event, when, obj, opts) {
-    if (player.onevent) player.onevent(event, when, obj, opts)
-    let fn = player['on' + event]
-    if (fn) fn(when, obj, opts)
-  }
-
   player.setVolume = volume => {
-    //console.log('Set VOLUME', volume)
     player.volume = volume
   }
+
   player.setMute = mute => {
     if (!mute) {
       player.setVolume(player.previousVolume || .8)
-    } else {
-      if (player.volume) {
-        player.previousVolume = player.volume
-      }
-      player.volume = 0
+      return
     }
+    if (player.volume) {
+      player.previousVolume = player.volume
+    }
+    player.setVolume(0)
   }
-
 
   return player
 
@@ -188,13 +175,12 @@ function createPlayer(ac, source, options) {
       node.source.disconnect()
       node.env.disconnect()
       node.disconnect()
-      player.emit('ended', now, node.id, node)
     }
     return node.id
   }
 
   function createNode (name, buffer, options) {
-    let node = ac.createGain()
+    const node = ac.createGain()
     node.gain.value = 0 // the envelope will control the gain
     node.connect(out)
 
@@ -209,9 +195,8 @@ function createPlayer(ac, source, options) {
     node.source.loopStart = options.loopStart || opts.loopStart
     node.source.loopEnd = options.loopEnd || opts.loopEnd
     node.stop = function (when) {
-      let time = when || ac.currentTime
-      player.emit('stop', time, name)
-      let stopAt = node.env.stop(time)
+      const time = when || ac.currentTime
+      const stopAt = node.env.stop(time)
       node.source.stop(stopAt)
     }
     return node
@@ -219,7 +204,9 @@ function createPlayer(ac, source, options) {
 }
 
 function isNum (x) { return typeof x === 'number' }
-let PARAMS = ['attack', 'decay', 'sustain', 'release']
+
+const PARAMS = ['attack', 'decay', 'sustain', 'release']
+
 function envelope (ac, options, opts) {
   let env = ADSR(ac)
   let adsr = options.adsr || opts.adsr

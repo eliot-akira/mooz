@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {},
   "dependencies": {
+    "medux": "*",
     "mna.api": "*",
     "mna.log": "*",
     "mna.events": "*"

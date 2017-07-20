@@ -1,16 +1,10 @@
 import requestSoundJson from './request'
 import jsonToBuffers from './toBuffers'
-import mooz from '../mooz'
-
-mooz.extend({
-  sounds: {
-    // name: buffers
-  }
-})
+import mooz from '../base'
 
 const log = require('core/log')('mooz/sounds/loadSounds', (...args) => console.log(...args))
 
-export async function loadSounds(soundPath) {
+export async function loadSounds({ soundPath }) {
 
   if (mooz.sounds[soundPath]) {
     log.ok('Already loaded', soundPath)

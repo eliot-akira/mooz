@@ -1,14 +1,14 @@
-var Tone = require('../core/Tone');
-require('../type/TimeBase');
+let Tone = require('../core/Tone')
+require('../type/TimeBase')
 
 module.exports = (function(){
 
   /**
-   *  @class Tone.Time is a primitive type for encoding Time values. 
+   *  @class Tone.Time is a primitive type for encoding Time values.
    *         Eventually all time values are evaluated to seconds
    *         using the `eval` method. Tone.Time can be constructed
    *         with or without the `new` keyword. Tone.Time can be passed
-   *         into the parameter of any method which takes time as an argument. 
+   *         into the parameter of any method which takes time as an argument.
    *  @constructor
    *  @extends {Tone.TimeBase}
    *  @param  {String|Number}  val    The time value.
@@ -27,20 +27,20 @@ module.exports = (function(){
        *  @type  {Boolean}
        *  @private
        */
-      this._plusNow = false;
-      
-      Tone.TimeBase.call(this, val, units);
+      this._plusNow = false
+
+      Tone.TimeBase.call(this, val, units)
 
     } else {
-      return new Tone.Time(val, units);
+      return new Tone.Time(val, units)
     }
-  };
+  }
 
-  Tone.extend(Tone.Time, Tone.TimeBase);
+  Tone.extend(Tone.Time, Tone.TimeBase)
 
-  //clone the expressions so that 
+  //clone the expressions so that
   //we can add more without modifying the original
-  Tone.Time.prototype._unaryExpressions = Object.create(Tone.TimeBase.prototype._unaryExpressions);
+  Tone.Time.prototype._unaryExpressions = Object.create(Tone.TimeBase.prototype._unaryExpressions)
 
   /*
    *  Adds an additional unary expression
@@ -51,9 +51,9 @@ module.exports = (function(){
   Tone.Time.prototype._unaryExpressions.quantize = {
     regexp : /^@/,
     method : function(rh){
-      return Tone.Transport.nextSubdivision(rh());
+      return Tone.Transport.nextSubdivision(rh())
     }
-  };
+  }
 
   /*
    *  Adds an additional unary expression
@@ -64,15 +64,15 @@ module.exports = (function(){
   Tone.Time.prototype._unaryExpressions.now = {
     regexp : /^\+/,
     method : function(lh){
-      this._plusNow = true;
-      return lh();
+      this._plusNow = true
+      return lh()
     }
-  };
+  }
 
   /**
    *  Quantize the time by the given subdivision. Optionally add a
    *  percentage which will move the time value towards the ideal
-   *  quantized value by that percentage. 
+   *  quantized value by that percentage.
    *  @param  {Number|Time}  val    The subdivision to quantize to
    *  @param  {NormalRange}  [percent=1]  Move the time value
    *                                   towards the quantized value by
@@ -83,27 +83,27 @@ module.exports = (function(){
    * Tone.Time(0.6).quantize("4n", 0.5) //returns 0.55
    */
   Tone.Time.prototype.quantize = function(subdiv, percent){
-    percent = this.defaultArg(percent, 1);
+    percent = this.defaultArg(percent, 1)
     this._expr = function(expr, subdivision, percent){
-      expr = expr();
-      subdivision = subdivision.toSeconds();
-      var multiple = Math.round(expr / subdivision);
-      var ideal = multiple * subdivision;
-      var diff = ideal - expr;
-      return expr + diff * percent;
-    }.bind(this, this._expr, new this.constructor(subdiv), percent);
-    return this;
-  };
+      expr = expr()
+      subdivision = subdivision.toSeconds()
+      let multiple = Math.round(expr / subdivision)
+      let ideal = multiple * subdivision
+      let diff = ideal - expr
+      return expr + diff * percent
+    }.bind(this, this._expr, new this.constructor(subdiv), percent)
+    return this
+  }
 
   /**
-   *  Adds the clock time to the time expression at the 
-   *  moment of evaluation. 
+   *  Adds the clock time to the time expression at the
+   *  moment of evaluation.
    *  @return  {Tone.Time}  this
    */
   Tone.Time.prototype.addNow = function(){
-    this._plusNow = true;
-    return this;
-  };
+    this._plusNow = true
+    return this
+  }
 
   /**
    *  @override
@@ -112,9 +112,9 @@ module.exports = (function(){
    *  @private
    */
   Tone.Time.prototype._defaultExpr = function(){
-    this._plusNow = true;
-    return this._noOp;
-  };
+    this._plusNow = true
+    return this._noOp
+  }
 
   /**
    *  Copies the value of time to this Time
@@ -122,163 +122,176 @@ module.exports = (function(){
    *  @return  {Time}
    */
   Tone.Time.prototype.copy = function(time){
-    Tone.TimeBase.prototype.copy.call(this, time);
-    this._plusNow = time._plusNow;
-    return this;
-  };
+    Tone.TimeBase.prototype.copy.call(this, time)
+    this._plusNow = time._plusNow
+    return this
+  }
 
   //CONVERSIONS//////////////////////////////////////////////////////////////
 
   /**
-   *  Convert a Time to Notation. Values will be thresholded to the nearest 128th note. 
-   *  @return {Notation} 
+   *  Convert a Time to Notation. Values will be thresholded to the nearest 128th note.
+   *  @return {Notation}
    *  @example
    * //if the Transport is at 120bpm:
    * Tone.Time(2).toNotation();//returns "1m"
    */
   Tone.Time.prototype.toNotation = function(){
-    var time = this.toSeconds();
-    var testNotations = ["1m", "2n", "4n", "8n", "16n", "32n", "64n", "128n"];
-    var retNotation = this._toNotationHelper(time, testNotations);
+    let time = this.toSeconds()
+    let testNotations = ["1m", "2n", "4n", "8n", "16n", "32n", "64n", "128n"]
+    let retNotation = this._toNotationHelper(time, testNotations)
     //try the same thing but with tripelets
-    var testTripletNotations = ["1m", "2n", "2t", "4n", "4t", "8n", "8t", "16n", "16t", "32n", "32t", "64n", "64t", "128n"];
-    var retTripletNotation = this._toNotationHelper(time, testTripletNotations);
+    let testTripletNotations = ["1m", "2n", "2t", "4n", "4t", "8n", "8t", "16n", "16t", "32n", "32t", "64n", "64t", "128n"]
+    let retTripletNotation = this._toNotationHelper(time, testTripletNotations)
     //choose the simpler expression of the two
     if (retTripletNotation.split("+").length < retNotation.split("+").length){
-      return retTripletNotation;
+      return retTripletNotation
     } else {
-      return retNotation;
+      return retNotation
     }
-  };
+  }
 
   /**
    *  Helper method for Tone.toNotation
-   *  @param {Number} units 
+   *  @param {Number} units
    *  @param {Array} testNotations
    *  @return {String}
    *  @private
    */
   Tone.Time.prototype._toNotationHelper = function(units, testNotations){
     //the threshold is the last value in the array
-    var threshold = this._notationToUnits(testNotations[testNotations.length - 1]);
-    var retNotation = "";
-    for (var i = 0; i < testNotations.length; i++){
-      var notationTime = this._notationToUnits(testNotations[i]);
+    let threshold = this._notationToUnits(testNotations[testNotations.length - 1])
+    let retNotation = ""
+    for (let i = 0; i < testNotations.length; i++){
+      let notationTime = this._notationToUnits(testNotations[i])
       //account for floating point errors (i.e. round up if the value is 0.999999)
-      var multiple = units / notationTime;
-      var floatingPointError = 0.000001;
+      let multiple = units / notationTime
+      let floatingPointError = 0.000001
       if (1 - multiple % 1 < floatingPointError){
-        multiple += floatingPointError;
+        multiple += floatingPointError
       }
-      multiple = Math.floor(multiple);
+      multiple = Math.floor(multiple)
       if (multiple > 0){
         if (multiple === 1){
-          retNotation += testNotations[i];
+          retNotation += testNotations[i]
         } else {
-          retNotation += multiple.toString() + "*" + testNotations[i];
+          retNotation += multiple.toString() + "*" + testNotations[i]
         }
-        units -= multiple * notationTime;
+        units -= multiple * notationTime
         if (units < threshold){
-          break;
+          break
         } else {
-          retNotation += " + ";
+          retNotation += " + "
         }
       }
     }
     if (retNotation === ""){
-      retNotation = "0";
+      retNotation = "0"
     }
-    return retNotation;
-  };
+    return retNotation
+  }
 
   /**
    *  Convert a notation value to the current units
-   *  @param  {Notation}  notation 
-   *  @return  {Number} 
+   *  @param  {Notation}  notation
+   *  @return  {Number}
    *  @private
    */
   Tone.Time.prototype._notationToUnits = function(notation){
-    var primaryExprs = this._primaryExpressions;
-    var notationExprs = [primaryExprs.n, primaryExprs.t, primaryExprs.m];
-    for (var i = 0; i < notationExprs.length; i++){
-      var expr = notationExprs[i];
-      var match = notation.match(expr.regexp);
+    let primaryExprs = this._primaryExpressions
+    let notationExprs = [primaryExprs.n, primaryExprs.t, primaryExprs.m]
+    for (let i = 0; i < notationExprs.length; i++){
+      let expr = notationExprs[i]
+      let match = notation.match(expr.regexp)
       if (match){
-        return expr.method.call(this, match[1]);
+        return expr.method.call(this, match[1])
       }
     }
-  };
+  }
 
   /**
    *  Return the time encoded as Bars:Beats:Sixteenths.
    *  @return  {BarsBeatsSixteenths}
    */
   Tone.Time.prototype.toBarsBeatsSixteenths = function(){
-    var quarterTime = this._beatsToUnits(1);
-    var quarters = this.toSeconds() / quarterTime;
-    var measures = Math.floor(quarters / this._timeSignature());
-    var sixteenths = (quarters % 1) * 4;
-    quarters = Math.floor(quarters) % this._timeSignature();
-    sixteenths = sixteenths.toString();
-    if (sixteenths.length > 3){
-      sixteenths = parseFloat(sixteenths).toFixed(3);
+    const maxQuarters = this._timeSignature()
+    let quarterTime = this._beatsToUnits(1)
+    let quarters = this.toSeconds() / quarterTime
+    let measures = Math.floor(quarters / maxQuarters)
+    let sixteenths = (quarters % 1) * 4
+    quarters = Math.floor(quarters) % maxQuarters
+
+    sixteenths = parseFloat(sixteenths.toString()).toFixed(3)
+    /**
+     * Add tolerance to get closest quarter
+     *
+     * TODO: Find source of error margin, probably between
+     * current time toSeconds and latency
+     */
+    if (sixteenths==4) {
+      sixteenths = 0
+      quarters++
+      if (quarters>=maxQuarters) {
+        quarters = maxQuarters - quarters
+        measures++
+      }
     }
-    var progress = [measures, quarters, sixteenths];
-    return progress.join(":");
-  };
+    let progress = [measures, quarters, sixteenths]
+    return progress.join(":")
+  }
 
   /**
    *  Return the time in ticks.
    *  @return  {Ticks}
    */
   Tone.Time.prototype.toTicks = function(){
-    var quarterTime = this._beatsToUnits(1);
-    var quarters = this.valueOf() / quarterTime;
-    return Math.floor(quarters * Tone.Transport.PPQ);
-  };
+    let quarterTime = this._beatsToUnits(1)
+    let quarters = this.valueOf() / quarterTime
+    return Math.floor(quarters * Tone.Transport.PPQ)
+  }
 
   /**
    *  Return the time in samples
-   *  @return  {Samples}  
+   *  @return  {Samples}
    */
   Tone.Time.prototype.toSamples = function(){
-    return this.toSeconds() * this.context.sampleRate;
-  };
+    return this.toSeconds() * this.context.sampleRate
+  }
 
   /**
    *  Return the time as a frequency value
-   *  @return  {Frequency} 
+   *  @return  {Frequency}
    *  @example
    * Tone.Time(2).toFrequency(); //0.5
    */
   Tone.Time.prototype.toFrequency = function(){
-    return 1/this.toSeconds();
-  };
+    return 1/this.toSeconds()
+  }
 
   /**
    *  Return the time in seconds.
-   *  @return  {Seconds} 
+   *  @return  {Seconds}
    */
   Tone.Time.prototype.toSeconds = function(){
-    return this.valueOf();
-  };
+    return this.valueOf()
+  }
 
   /**
    *  Return the time in milliseconds.
-   *  @return  {Milliseconds} 
+   *  @return  {Milliseconds}
    */
   Tone.Time.prototype.toMilliseconds = function(){
-    return this.toSeconds() * 1000;
-  };
+    return this.toSeconds() * 1000
+  }
 
   /**
    *  Return the time in seconds.
-   *  @return  {Seconds} 
+   *  @return  {Seconds}
    */
   Tone.Time.prototype.valueOf = function(){
-    var val = this._expr();
-    return val + (this._plusNow?this.now():0);
-  };
+    let val = this._expr()
+    return val + (this._plusNow?this.now():0)
+  }
 
-  return Tone.Time;
-})();
+  return Tone.Time
+})()

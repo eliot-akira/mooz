@@ -1,7 +1,9 @@
 import api from 'core/api'
-import mooz from '../mooz'
+import mooz from '../base'
 
-const log = require('core/log')('mooz/sounds/request', (...args) => console.log(...args))
+const log = require('core/log')('mooz/sounds/request',
+  false // (...args) => console.log(...args)
+)
 
 export default async function requestSoundJson(soundPath) {
 

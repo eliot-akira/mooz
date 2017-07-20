@@ -1,7 +1,9 @@
 import base64decode from '../util/base64decode'
-import mooz from '../mooz'
+import mooz from '../base'
 
-const log = require('core/log')('mooz/sounds/toBuffers', (...args) => console.log(...args))
+const log = require('core/log')('mooz/sounds/toBuffers',
+  false // (...args) => console.log(...args)
+)
 
 export default async function jsonToBuffers(json) {
 

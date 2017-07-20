@@ -1,14 +1,14 @@
-var Tone = require('../core/Tone');
-require('../core/Clock');
-require('../type/Type');
-require('../core/Timeline');
-require('../core/Emitter');
-require('../core/Gain');
-require('../core/IntervalTimeline');
+let Tone = require('../core/Tone')
+require('../core/Clock')
+require('../type/Type')
+require('../core/Timeline')
+require('../core/Emitter')
+require('../core/Gain')
+require('../core/IntervalTimeline')
 
 module.exports = (function(){
 
-  
+
 
   /**
    *  @class  Transport for timing musical events.
@@ -36,7 +36,7 @@ module.exports = (function(){
    */
   Tone.Transport = function(){
 
-    Tone.Emitter.call(this);
+    Tone.Emitter.call(this)
 
     ///////////////////////////////////////////////////////////////////////
     //  LOOPING
@@ -46,21 +46,21 @@ module.exports = (function(){
      *   If the transport loops or not.
      *  @type {boolean}
      */
-    this.loop = false;
+    this.loop = false
 
     /**
      *   The loop start position in ticks
      *  @type {Ticks}
      *  @private
      */
-    this._loopStart = 0;
+    this._loopStart = 0
 
     /**
      *   The loop end position in ticks
      *  @type {Ticks}
      *  @private
      */
-    this._loopEnd = 0;
+    this._loopEnd = 0
 
     ///////////////////////////////////////////////////////////////////////
     //  CLOCK/TEMPO
@@ -71,7 +71,7 @@ module.exports = (function(){
      *  @private
      *  @type  {Number}
      */
-    this._ppq = TransportConstructor.defaults.PPQ;
+    this._ppq = TransportConstructor.defaults.PPQ
 
     /**
      *  watches the main oscillator for timing ticks
@@ -82,9 +82,9 @@ module.exports = (function(){
     this._clock = new Tone.Clock({
       "callback" : this._processTick.bind(this),
       "frequency" : 0,
-    });
+    })
 
-    this._bindClockEvents();
+    this._bindClockEvents()
 
     /**
      *  The Beats Per Minute of the Transport.
@@ -95,12 +95,12 @@ module.exports = (function(){
      * //ramp the bpm to 120 over 10 seconds
      * Tone.Transport.bpm.rampTo(120, 10);
      */
-    this.bpm = this._clock.frequency;
-    this.bpm._toUnits = this._toUnits.bind(this);
-    this.bpm._fromUnits = this._fromUnits.bind(this);
-    this.bpm.units = Tone.Type.BPM;
-    this.bpm.value = TransportConstructor.defaults.bpm;
-    this._readOnly("bpm");
+    this.bpm = this._clock.frequency
+    this.bpm._toUnits = this._toUnits.bind(this)
+    this.bpm._fromUnits = this._fromUnits.bind(this)
+    this.bpm.units = Tone.Type.BPM
+    this.bpm.value = TransportConstructor.defaults.bpm
+    this._readOnly("bpm")
 
     /**
      *  The time signature, or more accurately the numerator
@@ -108,7 +108,7 @@ module.exports = (function(){
      *  @type {Number}
      *  @private
      */
-    this._timeSignature = TransportConstructor.defaults.timeSignature;
+    this._timeSignature = TransportConstructor.defaults.timeSignature
 
     ///////////////////////////////////////////////////////////////////////
     //  TIMELINE EVENTS
@@ -119,42 +119,42 @@ module.exports = (function(){
      *  @type {Object}
      *  @private
      */
-    this._scheduledEvents = {};
+    this._scheduledEvents = {}
 
     /**
      *  The event ID counter
      *  @type {Number}
      *  @private
      */
-    this._eventID = 0;
+    this._eventID = 0
 
     /**
      *   The scheduled events.
      *  @type {Tone.Timeline}
      *  @private
      */
-    this._timeline = new Tone.Timeline();
+    this._timeline = new Tone.Timeline()
 
     /**
      *  Repeated events
      *  @type {Array}
      *  @private
      */
-    this._repeatedEvents = new Tone.IntervalTimeline();
+    this._repeatedEvents = new Tone.IntervalTimeline()
 
     /**
      *  Events that occur once
      *  @type {Array}
      *  @private
      */
-    this._onceEvents = new Tone.Timeline();
+    this._onceEvents = new Tone.Timeline()
 
     /**
      *  All of the synced Signals
      *  @private
      *  @type {Array}
      */
-    this._syncedSignals = [];
+    this._syncedSignals = []
 
     ///////////////////////////////////////////////////////////////////////
     //  SWING
@@ -165,18 +165,18 @@ module.exports = (function(){
      *  @type  {Ticks}
      *  @private
      */
-    this._swingTicks = TransportConstructor.defaults.PPQ / 2; //8n
+    this._swingTicks = TransportConstructor.defaults.PPQ / 2 //8n
 
     /**
      *  The swing amount
      *  @type {NormalRange}
      *  @private
      */
-    this._swingAmount = 0;
+    this._swingAmount = 0
 
-  };
+  }
 
-  Tone.extend(Tone.Transport, Tone.Emitter);
+  Tone.extend(Tone.Transport, Tone.Emitter)
 
   /**
    *  the defaults
@@ -192,7 +192,7 @@ module.exports = (function(){
     "loopStart" : 0,
     "loopEnd" : "4m",
     "PPQ" : 192
-  };
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   //  TICKS
@@ -204,45 +204,45 @@ module.exports = (function(){
    *  @private
    */
   Tone.Transport.prototype._processTick = function(tickTime){
-    var ticks = this._clock.ticks;
+    let ticks = this._clock.ticks
     //handle swing
     if (this._swingAmount > 0 &&
       ticks % this._ppq !== 0 && //not on a downbeat
       ticks % (this._swingTicks * 2) !== 0){
       //add some swing
-      var progress = (ticks % (this._swingTicks * 2)) / (this._swingTicks * 2);
-      var amount = Math.sin((progress) * Math.PI) * this._swingAmount;
-      tickTime += Tone.Time(this._swingTicks * 2/3, "i") * amount;
+      let progress = (ticks % (this._swingTicks * 2)) / (this._swingTicks * 2)
+      let amount = Math.sin((progress) * Math.PI) * this._swingAmount
+      tickTime += Tone.Time(this._swingTicks * 2/3, "i") * amount
     }
     //do the loop test
     if (this.loop){
       if (ticks === this._loopEnd){
-        this.emit("loopEnd", tickTime);
-        this._clock.ticks = this._loopStart;
-        ticks = this._loopStart;
-        this.emit("loopStart", tickTime, this.seconds);
-        this.emit("loop", tickTime);
+        this.emit("loopEnd", tickTime)
+        this._clock.ticks = this._loopStart
+        ticks = this._loopStart
+        this.emit("loopStart", tickTime, this.seconds)
+        this.emit("loop", tickTime)
       }
     }
     //process the single occurrence events
     this._onceEvents.forEachBefore(ticks, function(event){
-      event.callback(tickTime);
+      event.callback(tickTime)
       //remove the event
-      delete this._scheduledEvents[event.id.toString()];
-    }.bind(this));
+      delete this._scheduledEvents[event.id.toString()]
+    }.bind(this))
     //and clear the single occurrence timeline
-    this._onceEvents.cancelBefore(ticks);
+    this._onceEvents.cancelBefore(ticks)
     //fire the next tick events if their time has come
     this._timeline.forEachAtTime(ticks, function(event){
-      event.callback(tickTime);
-    });
+      event.callback(tickTime)
+    })
     //process the repeated events
     this._repeatedEvents.forEachAtTime(ticks, function(event){
       if ((ticks - event.time) % event.interval === 0){
-        event.callback(tickTime);
+        event.callback(tickTime)
       }
-    });
-  };
+    })
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   //  SCHEDULABLE EVENTS
@@ -260,18 +260,18 @@ module.exports = (function(){
    * }, "128i");
    */
   Tone.Transport.prototype.schedule = function(callback, time){
-    var event = {
+    let event = {
       "time" : this.toTicks(time),
       "callback" : callback
-    };
-    var id = this._eventID++;
+    }
+    let id = this._eventID++
     this._scheduledEvents[id.toString()] = {
       "event" : event,
       "timeline" : this._timeline
-    };
-    this._timeline.add(event);
-    return id;
-  };
+    }
+    this._timeline.add(event)
+    return id
+  }
 
   /**
    *  Schedule a repeated event along the timeline. The event will fire
@@ -291,22 +291,22 @@ module.exports = (function(){
    */
   Tone.Transport.prototype.scheduleRepeat = function(callback, interval, startTime, duration){
     if (interval <= 0){
-      throw new Error("Tone.Transport: repeat events must have an interval larger than 0");
+      throw new Error("Tone.Transport: repeat events must have an interval larger than 0")
     }
-    var event = {
+    let event = {
       "time" : this.toTicks(startTime),
       "duration" : this.toTicks(this.defaultArg(duration, Infinity)),
       "interval" : this.toTicks(interval),
       "callback" : callback
-    };
-    var id = this._eventID++;
+    }
+    let id = this._eventID++
     this._scheduledEvents[id.toString()] = {
       "event" : event,
       "timeline" : this._repeatedEvents
-    };
-    this._repeatedEvents.add(event);
-    return id;
-  };
+    }
+    this._repeatedEvents.add(event)
+    return id
+  }
 
   /**
    *  Schedule an event that will be removed after it is invoked.
@@ -317,19 +317,19 @@ module.exports = (function(){
    *  @returns {Number} The ID of the scheduled event.
    */
   Tone.Transport.prototype.scheduleOnce = function(callback, time){
-    var id = this._eventID++;
-    var event = {
+    let id = this._eventID++
+    let event = {
       "time" : this.toTicks(time),
       "callback" : callback,
       "id" : id
-    };
+    }
     this._scheduledEvents[id.toString()] = {
       "event" : event,
       "timeline" : this._onceEvents
-    };
-    this._onceEvents.add(event);
-    return id;
-  };
+    }
+    this._onceEvents.add(event)
+    return id
+  }
 
   /**
    *  Clear the passed in event id from the timeline
@@ -338,12 +338,12 @@ module.exports = (function(){
    */
   Tone.Transport.prototype.clear = function(eventId){
     if (this._scheduledEvents.hasOwnProperty(eventId)){
-      var item = this._scheduledEvents[eventId.toString()];
-      item.timeline.remove(item.event);
-      delete this._scheduledEvents[eventId.toString()];
+      let item = this._scheduledEvents[eventId.toString()]
+      item.timeline.remove(item.event)
+      delete this._scheduledEvents[eventId.toString()]
     }
-    return this;
-  };
+    return this
+  }
 
   /**
    *  Remove scheduled events from the timeline after
@@ -354,13 +354,13 @@ module.exports = (function(){
    *  @returns {Tone.Transport} this
    */
   Tone.Transport.prototype.cancel = function(after){
-    after = this.defaultArg(after, 0);
-    after = this.toTicks(after);
-    this._timeline.cancel(after);
-    this._onceEvents.cancel(after);
-    this._repeatedEvents.cancel(after);
-    return this;
-  };
+    after = this.defaultArg(after, 0)
+    after = this.toTicks(after)
+    this._timeline.cancel(after)
+    this._onceEvents.cancel(after)
+    this._repeatedEvents.cancel(after)
+    return this
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   //  START/STOP/PAUSE
@@ -371,18 +371,18 @@ module.exports = (function(){
    */
   Tone.Transport.prototype._bindClockEvents = function(){
     this._clock.on("start", function(time, offset){
-      offset = Tone.Time(this._clock.ticks, "i").toSeconds();
-      this.emit("start", time, offset);
-    }.bind(this));
+      offset = Tone.Time(this._clock.ticks, "i").toSeconds()
+      this.emit("start", time, offset)
+    }.bind(this))
 
     this._clock.on("stop", function(time){
-      this.emit("stop", time);
-    }.bind(this));
+      this.emit("stop", time)
+    }.bind(this))
 
     this._clock.on("pause", function(time){
-      this.emit("pause", time);
-    }.bind(this));
-  };
+      this.emit("pause", time)
+    }.bind(this))
+  }
 
   /**
    *  Returns the playback state of the source, either "started", "stopped", or "paused"
@@ -393,9 +393,9 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "state", {
     get : function(){
-      return this._clock.getStateAtTime(this.now());
+      return this._clock.getStateAtTime(this.now())
     }
-  });
+  })
 
   /**
    *  Start the transport and all sources synced to the transport.
@@ -409,11 +409,11 @@ module.exports = (function(){
   Tone.Transport.prototype.start = function(time, offset){
     //start the clock
     if (!this.isUndef(offset)){
-      offset = this.toTicks(offset);
+      offset = this.toTicks(offset)
     }
-    this._clock.start(time, offset);
-    return this;
-  };
+    this._clock.start(time, offset)
+    return this
+  }
 
   /**
    *  Stop the transport and all sources synced to the transport.
@@ -423,9 +423,9 @@ module.exports = (function(){
    * Tone.Transport.stop();
    */
   Tone.Transport.prototype.stop = function(time){
-    this._clock.stop(time);
-    return this;
-  };
+    this._clock.stop(time)
+    return this
+  }
 
   /**
    *  Pause the transport and all sources synced to the transport.
@@ -433,9 +433,9 @@ module.exports = (function(){
    *  @returns {Tone.Transport} this
    */
   Tone.Transport.prototype.pause = function(time){
-    this._clock.pause(time);
-    return this;
-  };
+    this._clock.pause(time)
+    return this
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   //  SETTERS/GETTERS
@@ -457,15 +457,15 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "timeSignature", {
     get : function(){
-      return this._timeSignature;
+      return this._timeSignature
     },
     set : function(timeSig){
       if (this.isArray(timeSig)){
-        timeSig = (timeSig[0] / timeSig[1]) * 4;
+        timeSig = (timeSig[0] / timeSig[1]) * 4
       }
-      this._timeSignature = timeSig;
+      this._timeSignature = timeSig
     }
-  });
+  })
 
 
   /**
@@ -476,12 +476,12 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "loopStart", {
     get : function(){
-      return Tone.TransportTime(this._loopStart, "i").toSeconds();
+      return Tone.TransportTime(this._loopStart, "i").toSeconds()
     },
     set : function(startPosition){
-      this._loopStart = this.toTicks(startPosition);
+      this._loopStart = this.toTicks(startPosition)
     }
-  });
+  })
 
   /**
    * When the Tone.Transport.loop = true, this is the ending position of the loop.
@@ -491,12 +491,12 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "loopEnd", {
     get : function(){
-      return Tone.TransportTime(this._loopEnd, "i").toSeconds();
+      return Tone.TransportTime(this._loopEnd, "i").toSeconds()
     },
     set : function(endPosition){
-      this._loopEnd = this.toTicks(endPosition);
+      this._loopEnd = this.toTicks(endPosition)
     }
-  });
+  })
 
   /**
    *  Set the loop start and stop at the same time.
@@ -509,10 +509,10 @@ module.exports = (function(){
    * Tone.Transport.loop = true;
    */
   Tone.Transport.prototype.setLoopPoints = function(startPosition, endPosition){
-    this.loopStart = startPosition;
-    this.loopEnd = endPosition;
-    return this;
-  };
+    this.loopStart = startPosition
+    this.loopEnd = endPosition
+    return this
+  }
 
   /**
    *  The swing value. Between 0-1 where 1 equal to
@@ -523,13 +523,13 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "swing", {
     get : function(){
-      return this._swingAmount;
+      return this._swingAmount
     },
     set : function(amount){
       //scale the values to a normal range
-      this._swingAmount = amount;
+      this._swingAmount = amount
     }
-  });
+  })
 
   /**
    *  Set the subdivision which the swing will be applied to.
@@ -542,12 +542,12 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "swingSubdivision", {
     get : function(){
-      return Tone.Time(this._swingTicks, "i").toNotation();
+      return Tone.Time(this._swingTicks, "i").toNotation()
     },
     set : function(subdivision){
-      this._swingTicks = this.toTicks(subdivision);
+      this._swingTicks = this.toTicks(subdivision)
     }
-  });
+  })
 
   /**
    *  The Transport's position in Bars:Beats:Sixteenths.
@@ -558,13 +558,13 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "position", {
     get : function(){
-      return Tone.TransportTime(this.ticks, "i").toBarsBeatsSixteenths();
+      return Tone.TransportTime(this.ticks, "i").toBarsBeatsSixteenths()
     },
     set : function(progress){
-      var ticks = this.toTicks(progress);
-      this.ticks = ticks;
+      let ticks = this.toTicks(progress)
+      this.ticks = ticks
     }
-  });
+  })
 
   /**
    *  The Transport's position in seconds
@@ -575,13 +575,13 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "seconds", {
     get : function(){
-      return Tone.TransportTime(this.ticks, "i").toSeconds();
+      return Tone.TransportTime(this.ticks, "i").toSeconds()
     },
     set : function(progress){
-      var ticks = this.toTicks(progress);
-      this.ticks = ticks;
+      let ticks = this.toTicks(progress)
+      this.ticks = ticks
     }
-  });
+  })
 
   /**
    *  The Transport's loop position as a normalized value. Always
@@ -593,12 +593,12 @@ module.exports = (function(){
   Object.defineProperty(Tone.Transport.prototype, "progress", {
     get : function(){
       if (this.loop){
-        return (this.ticks - this._loopStart) / (this._loopEnd - this._loopStart);
+        return (this.ticks - this._loopStart) / (this._loopEnd - this._loopStart)
       } else {
-        return 0;
+        return 0
       }
     }
-  });
+  })
 
   /**
    *  The transports current tick position.
@@ -609,23 +609,23 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "ticks", {
     get : function(){
-      return this._clock.ticks;
+      return this._clock.ticks
     },
     set : function(t){
       if (this._clock.ticks !== t){
-        var now = this.now();
+        let now = this.now()
         //stop everything synced to the transport
         if (this.state === Tone.State.Started){
-          this.emit("stop", now);
-          this._clock.ticks = t;
+          this.emit("stop", now)
+          this._clock.ticks = t
           //restart it with the new time
-          this.emit("start", now, this.seconds);
+          this.emit("start", now, this.seconds)
         } else {
-          this._clock.ticks = t;
+          this._clock.ticks = t
         }
       }
     }
-  });
+  })
 
   /**
    *  Pulses Per Quarter note. This is the smallest resolution
@@ -639,14 +639,14 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "PPQ", {
     get : function(){
-      return this._ppq;
+      return this._ppq
     },
     set : function(ppq){
-      var bpm = this.bpm.value;
-      this._ppq = ppq;
-      this.bpm.value = bpm;
+      let bpm = this.bpm.value
+      this._ppq = ppq
+      this.bpm.value = bpm
     }
-  });
+  })
 
   /**
    *  The hint to the type of playback. Affects tradeoffs between audio
@@ -662,12 +662,12 @@ module.exports = (function(){
    */
   Object.defineProperty(Tone.Transport.prototype, "latencyHint", {
     get : function(){
-      return Tone.Clock.latencyHint;
+      return Tone.Clock.latencyHint
     },
     set : function(hint){
-      Tone.Clock.latencyHint = hint;
+      Tone.Clock.latencyHint = hint
     }
-  });
+  })
 
   /**
    *  Convert from BPM to frequency (factoring in PPQ)
@@ -676,8 +676,8 @@ module.exports = (function(){
    *  @private
    */
   Tone.Transport.prototype._fromUnits = function(bpm){
-    return 1 / (60 / bpm / this.PPQ);
-  };
+    return 1 / (60 / bpm / this.PPQ)
+  }
 
   /**
    *  Convert from frequency (with PPQ) into BPM
@@ -686,8 +686,8 @@ module.exports = (function(){
    *  @private
    */
   Tone.Transport.prototype._toUnits = function(freq){
-    return (freq / this.PPQ) * 60;
-  };
+    return (freq / this.PPQ) * 60
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   //  SYNCING
@@ -705,21 +705,21 @@ module.exports = (function(){
    * Tone.Transport.nextSubdivision("4n");
    */
   Tone.Transport.prototype.nextSubdivision = function(subdivision){
-    subdivision = this.toSeconds(subdivision);
+    subdivision = this.toSeconds(subdivision)
     //if the transport's not started, return 0
-    var now;
+    let now
     if (this.state === Tone.State.Started){
-      now = this._clock._nextTick;
+      now = this._clock._nextTick
     } else {
-      return 0;
+      return 0
     }
-    var transportPos = Tone.Time(this.ticks, "i");
-    var remainingTime = subdivision - (transportPos % subdivision);
+    let transportPos = Tone.Time(this.ticks, "i")
+    let remainingTime = subdivision - (transportPos % subdivision)
     if (remainingTime === 0){
-      remainingTime = subdivision;
+      remainingTime = subdivision
     }
-    return now + remainingTime;
-  };
+    return now + remainingTime
+  }
 
   /**
    *  Attaches the signal to the tempo control signal so that
@@ -736,21 +736,21 @@ module.exports = (function(){
     if (!ratio){
       //get the sync ratio
       if (signal._param.value !== 0){
-        ratio = signal._param.value / this.bpm._param.value;
+        ratio = signal._param.value / this.bpm._param.value
       } else {
-        ratio = 0;
+        ratio = 0
       }
     }
-    var ratioSignal = new Tone.Gain(ratio);
-    this.bpm.chain(ratioSignal, signal._param);
+    let ratioSignal = new Tone.Gain(ratio)
+    this.bpm.chain(ratioSignal, signal._param)
     this._syncedSignals.push({
       "ratio" : ratioSignal,
       "signal" : signal,
       "initial" : signal._param.value
-    });
-    signal._param.value = 0;
-    return this;
-  };
+    })
+    signal._param.value = 0
+    return this
+  }
 
   /**
    *  Unsyncs a previously synced signal from the transport's control.
@@ -759,16 +759,16 @@ module.exports = (function(){
    *  @returns {Tone.Transport} this
    */
   Tone.Transport.prototype.unsyncSignal = function(signal){
-    for (var i = this._syncedSignals.length - 1; i >= 0; i--){
-      var syncedSignal = this._syncedSignals[i];
+    for (let i = this._syncedSignals.length - 1; i >= 0; i--){
+      let syncedSignal = this._syncedSignals[i]
       if (syncedSignal.signal === signal){
-        syncedSignal.ratio.dispose();
-        syncedSignal.signal._param.value = syncedSignal.initial;
-        this._syncedSignals.splice(i, 1);
+        syncedSignal.ratio.dispose()
+        syncedSignal.signal._param.value = syncedSignal.initial
+        this._syncedSignals.splice(i, 1)
       }
     }
-    return this;
-  };
+    return this
+  }
 
   /**
    *  Clean up.
@@ -776,36 +776,36 @@ module.exports = (function(){
    *  @private
    */
   Tone.Transport.prototype.dispose = function(){
-    Tone.Emitter.prototype.dispose.call(this);
-    this._clock.dispose();
-    this._clock = null;
-    this._writable("bpm");
-    this.bpm = null;
-    this._timeline.dispose();
-    this._timeline = null;
-    this._onceEvents.dispose();
-    this._onceEvents = null;
-    this._repeatedEvents.dispose();
-    this._repeatedEvents = null;
-    return this;
-  };
+    Tone.Emitter.prototype.dispose.call(this)
+    this._clock.dispose()
+    this._clock = null
+    this._writable("bpm")
+    this.bpm = null
+    this._timeline.dispose()
+    this._timeline = null
+    this._onceEvents.dispose()
+    this._onceEvents = null
+    this._repeatedEvents.dispose()
+    this._repeatedEvents = null
+    return this
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   //  INITIALIZATION
   ///////////////////////////////////////////////////////////////////////////////
 
-  var TransportConstructor = Tone.Transport;
-  Tone.Transport = new TransportConstructor();
+  var TransportConstructor = Tone.Transport
+  Tone.Transport = new TransportConstructor()
 
   Tone.Context.on("init", function(context){
     if (context.Transport instanceof TransportConstructor){
-      Tone.Transport = context.Transport;
+      Tone.Transport = context.Transport
     } else {
-      Tone.Transport = new TransportConstructor();
+      Tone.Transport = new TransportConstructor()
       //store the Transport on the context so it can be retrieved later
-      context.Transport = Tone.Transport;
+      context.Transport = Tone.Transport
     }
-  });
+  })
 
-  return Tone.Transport;
-})();
+  return Tone.Transport
+})()

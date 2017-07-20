@@ -1,5 +1,0 @@
-
-// Time signature
-
-// Adjust metronome
-

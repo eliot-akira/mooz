@@ -1,12 +1,16 @@
 
 # Ignore bigger files until ready
 
+assets
 packages/static/instruments
 !packages/static/instruments/
 packages/static/instruments/*
 !packages/static/instruments/metronome*
 
 packages/static/scores
+#!packages/static/scores/
+#packages/static/scores/*
+#!packages/static/scores/test
 
 
 # Default ignore

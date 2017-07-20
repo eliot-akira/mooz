@@ -7,15 +7,14 @@ Modules for music apps
 
 
 
-### Tone
+### Event scheduler
 
-Modularized fork of [Tone.JS](https://github.com/Tonejs/Tone.js)
+Based on [Tone.JS](https://github.com/Tonejs/Tone.js)
 
 
-### Vex: Notation
+### Notation
 
-Extended fork of [VexFlow](https://github.com/0xfe/vexflow)
-
+Based on [VexFlow](https://github.com/0xfe/vexflow) and [VexFlow MusicXML](https://github.com/mechanicalscribe/vexflow-musicxml)
 
 ### Wavpack
 

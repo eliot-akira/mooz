@@ -1,26 +1,41 @@
-import mooz from '../mooz'
+import mooz from '../base'
+
+const log = require('core/log')('mooz/transport/scheduler',
+  (...args) => console.log(...args)
+)
 
 /**
- * Schedule render on time
+ * Call event on time in seconds
  */
-export const onTime = mooz.tone.Draw.schedule.bind(mooz.tone.Draw)
+const onTime = (callback, time) =>
+  mooz.tone.Draw.schedule.call(mooz.tone.Draw, callback, time)
   /*(callback, time) => {
     const now = mooz.context.currentTime
     const diff = time > now ? time - now : 0
     setTimeout(callback, diff / 1000)
   }*/
 
+export const createScheduler = ({ callback, schedule }, { actions }) => {
 
-export const createScheduler = (callback, schedule) => {
-  return new mooz.tone.Part((time, event) => {
+  if (!schedule || !Array.isArray(schedule)) {
+    return log.error('Schedule must be an array of event objects')
+  }
 
-    const position = mooz.getPosition()
+  const { getPosition } = actions
+
+  return new mooz.tone.Part((when, event = {}) => {
+
+    const position = getPosition()
+
+    // Convert duration to seconds
+    const duration = event.duration
+    ? mooz.time(event.duration).toSeconds()
+    : 0 // Play the whole length of audio buffer
 
     callback({
-      time,
+      when, duration, position,
       event,
-      position,
-      onTime: fn => onTime(fn, time)
+      onTime: fn => onTime(fn, when)
     })
 
   }, schedule)
