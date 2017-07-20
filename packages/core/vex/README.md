@@ -5,9 +5,10 @@ Render music notation and guitar tablature
 
 ---
 
-Extended fork of [VexFlow](https://github.com/0xfe/vexflow)
+Based on [VexFlow](https://github.com/0xfe/vexflow)
 
 #### Changes
 
-- Simplify and update build process
-- Annotation: set x/y shift like other modifiers
+- Simplify and update build task
+- Responsive score layout and MusicXML support based on [`vexflow-musicxml`](https://github.com/mechanicalscribe/vexflow-musicxml)
+- Improve function and layout: stave, tab stave, annotation..

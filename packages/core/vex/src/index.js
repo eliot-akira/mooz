@@ -1,4 +1,7 @@
-const Vex = require('./core').default
-const extendXML = require('./xml')
+const Vex = require('./core')
 
-module.exports = extendXML(Vex)
+require('./backend')(Vex)
+require('./document')(Vex) // Must be after backend
+//require('./score')(Vex)
+
+module.exports = Vex

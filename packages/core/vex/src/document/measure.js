@@ -4,6 +4,11 @@
  */
 module.exports = function(Vex) {
 
+  const log = (...args) =>
+    Vex.Flow.Measure.DEBUG
+    ? console.log('Vex.Flow.Measure', args)
+    : null
+
 /** @constructor */
   Vex.Flow.Measure = function(object) {
     if (typeof object != "object")
@@ -27,6 +32,8 @@ module.exports = function(Vex) {
 
     this.type = "measure"
   }
+
+  Vex.Flow.Measure.DEBUG = false
 
   Vex.Flow.Measure.prototype.setAttributes = function(attributes) {
     Vex.Merge(this.attributes, attributes)
@@ -68,8 +75,9 @@ module.exports = function(Vex) {
     let firstStaveForPart = 0
     for (let i = 0; i < this.getNumberOfParts(); i++) {
       let part = this.getPart(i)
-      if (firstStaveForPart + part.getNumberOfStaves() > staveNum)
+      if (firstStaveForPart + part.getNumberOfStaves() > staveNum) {
         return part.getStave(staveNum - firstStaveForPart)
+      }
       firstStaveForPart += part.getNumberOfStaves()
     }
     return undefined
@@ -77,7 +85,9 @@ module.exports = function(Vex) {
   Vex.Flow.Measure.prototype.getStaves = function() {
     let numStaves = this.getNumberOfStaves()
     let staves = new Array()
-    for (let i = 0; i < numStaves; i++) staves.push(this.getStave(i))
+    for (let i = 0; i < numStaves; i++) {
+      staves.push(this.getStave(i))
+    }
     return staves
   }
 
@@ -105,7 +115,7 @@ module.exports = function(Vex) {
               "Constructor requires nonzero num_beats and beat_value")
     this.time = Vex.Merge({}, object.time)
 
-  // Convenience options which can be set on a part instead of a stave/voice
+    // Convenience options which can be set on a part instead of a stave/voice
     this.options = { time: this.time }
     if (typeof object.clef == "string") this.options.clef = object.clef
     if (typeof object.key == "string") this.options.key = object.key
@@ -256,11 +266,17 @@ module.exports = function(Vex) {
  * @param {Object} Note object
  */
   Vex.Flow.Measure.Voice.prototype.addNote = function(note) {
+
+    //log('VOICE: ADD NOTE', note)
+
   // TODO: Check total ticks in voice
     let noteObj = new Vex.Flow.Measure.Note(note) // copy note
+
     if (!note.rest && this.key && note.accidentals == null) {
-    // Generate accidentals automatically
-    // Track accidentals used previously in measure
+
+      // Generate accidentals automatically
+      // Track accidentals used previously in measure
+
       if (! this._accidentals)
         this._accidentals = Vex.Flow.Measure.Voice.keyAccidentals(this.key)
       let accidentals = this._accidentals
@@ -283,25 +299,34 @@ module.exports = function(Vex) {
         return acc
       })
     }
+
+
+    //log('VOICE: ADD NOTE', noteObj)
+
     this.notes.push(new Vex.Flow.Measure.Note(noteObj))
   }
 
-/**
- * Vex.Flow.Measure.Stave - represent one "stave" for one measure
- * (corresponds to a Vex.Flow.Stave)
- * @constructor
- */
+  /**
+   * Vex.Flow.Measure.Stave - represent one "stave" for one measure
+   * (corresponds to a Vex.Flow.Stave)
+   * @constructor
+   */
   Vex.Flow.Measure.Stave = function(object) {
+
     if (typeof object != "object")
       throw new Vex.RERR("ArgumentError", "Invalid argument to constructor")
     if (! object.time || ! object.time.num_beats || ! object.time.beat_value)
       throw new Vex.RERR("ArgumentError",
               "Constructor requires nonzero num_beats and beat_value")
+
     this.time = Vex.Merge({}, object.time)
-    if (typeof object.clef != "string")
+
+    /*if (typeof object.clef != "string") {
       throw new Vex.RERR("InvalidIRError",
               "Stave object requires clef property")
-    this.clef = object.clef
+    }*/
+
+    this.clef = object.clef || 'treble'
     this.key = (typeof object.key == "string") ? object.key : null
     this.modifiers = new Array()
     if (object.modifiers instanceof Array) {
@@ -309,23 +334,81 @@ module.exports = function(Vex) {
         this.addModifier(object.modifiers[i])
     }
 
+    // Create default modifiers: clef, time, key
     this.type = "stave"
+    //log('OBJECT TO STAVE', object, this)
+
+    this.addDefaultModifiers()
   }
 
-/**
- * Adds a modifier (clef, etc.), which is just a plain object with a type
- * and other properties.
- */
+  // Should be done every time stave block is redrawn
+  Vex.Flow.Measure.Stave.prototype.addDefaultModifiers = function() {
+
+    const s = this
+
+    log('ADD DEFAULT MODIFIERS', s)
+    const keys = ['clef', 'key', 'time']
+    keys.forEach(key => {
+
+      log('CHECK STAVE KEY', key, s)
+
+      if (s.hide && s.hide[key]) return
+
+      const check = s.getModifier(key)
+      if (check) {
+        log('GOT MODIFIER', key, check)
+        //inherit[key] = check
+        return
+      }
+
+      if (!s[key]) return
+      /*if (!s[key] && inherit[key]) {
+        log('INHERIT MODIFIER', key, inherit[key])
+        s.addModifier({ ...inherit[key], automatic: true })
+        return
+      }*/
+
+      const m = {
+        type: key,
+        [key]: s[key],
+        //automatic: true
+      }
+      if (key!=='time') {
+        m[key] = s[key]
+      } else if (typeof s.time_signature==='string') {
+        m.time = s.time_signature
+      } else {
+        if (typeof s.time==='object') {
+          Object.keys(s.time).forEach(k => m[k] = s.time[k])
+        }
+      }
+
+      log('CREATE MODIFIER', key, m)
+
+      s.addModifier(m)
+    })
+  }
+
+
+  /**
+   * Adds a modifier (clef, etc.), which is just a plain object with a type
+   * and other properties.
+   */
   Vex.Flow.Measure.Stave.prototype.addModifier = function(modifier) {
-  // Type is required for modifiers
+
+    log('ADD MODIFIER', modifier)
+
+    // Type is required for modifiers
     if (typeof modifier != "object" || typeof modifier.type != "string")
       throw new Vex.RERR("InvalidIRError",
                        "Stave modifier requires type string property")
-  // Copy modifier
-  // Automatic modifier: created by formatter, can be deleted
+
+    // Copy modifier
+    // Automatic modifier: created by formatter, can be deleted
     let newModifier = { type: modifier.type,
       automatic: !!(modifier.automatic) // Force true/false
     }
+
     switch (modifier.type) {
     case "clef":
       if (typeof modifier.clef != "string")
@@ -345,10 +428,12 @@ module.exports = function(Vex) {
                     "Time modifier requires nonzero num_beats and beat_value")
       newModifier.num_beats = modifier.num_beats
       newModifier.beat_value = modifier.beat_value
+      newModifier.symbol = modifier.symbol
       break
     default:
       throw new Vex.RERR("InvalidIRError", "Modifier not recognized")
     }
+
     this.modifiers.push(newModifier)
   }
 
@@ -361,11 +446,11 @@ module.exports = function(Vex) {
     return mod
   }
 
-/**
- * Delete modifier(s) which have the given type.
- *
- * @param {String} Type of modifier
- */
+  /**
+   * Delete modifier(s) which have the given type.
+   *
+   * @param {String} Type of modifier
+   */
   Vex.Flow.Measure.Stave.prototype.deleteModifier = function(modifier) {
     if (typeof modifier != "string")
       throw new Vex.RERR("ArgumentError",
@@ -378,34 +463,43 @@ module.exports = function(Vex) {
     this.modifiers = newModifiers
   }
 
-/**
- * Delete all automatic modifiers (used by formatter when a measure is no
- * longer at the beginning of a system.)
- * @return {Boolean} Whether any modifiers were deleted
- */
+  /**
+   * Delete all automatic modifiers (used by formatter when a measure is no
+   * longer at the beginning of a system.)
+   * @return {Boolean} Whether any modifiers were deleted
+   */
   Vex.Flow.Measure.Stave.prototype.deleteAutomaticModifiers = function() {
-  // Create new modifier array with modifiers that remain
+    // Create new modifier array with modifiers that remain
     let anyDeleted = false
     let newModifiers = new Array()
     this.modifiers.forEach(function(mod) {
-      if (mod.automatic) anyDeleted = true
-      else newModifiers.push(mod)
+      if (mod.automatic) {
+
+        log('MODIFIER DELETED', mod)
+
+        anyDeleted = true
+      } else newModifiers.push(mod)
     })
+
     this.modifiers = newModifiers
+
     return anyDeleted
   }
 
-/**
- * Vex.Flow.Measure.Note - a single note (includes chords, rests, etc.)
- * @constructor
- */
+  /**
+   * Vex.Flow.Measure.Note - a single note (includes chords, rests, etc.)
+   * @constructor
+   */
   Vex.Flow.Measure.Note = function(object) {
+
     if (typeof object != "object")
       throw new Vex.RERR("ArgumentError", "Invalid argument to constructor")
+
     if (object.keys instanceof Array)
     // Copy keys array, converting each key value to the standard
       this.keys = object.keys.map(Vex.Flow.Measure.Note.Key)
     else this.keys = new Array()
+
     if (object.accidentals instanceof Array) {
       if (object.accidentals.length != this.keys.length)
         throw new Vex.RERR("InvalidIRError",
@@ -415,6 +509,7 @@ module.exports = function(Vex) {
     else this.accidentals = null // default accidentals
   // Note: accidentals set by voice if this.accidentals == null
   //       no accidentals           if this.accidentals == [null, ...]
+
     this.duration = object.duration
     this.rest = !!(object.rest) // force true or false
     this.intrinsicTicks = (object.intrinsicTicks > 0)
@@ -443,19 +538,23 @@ module.exports = function(Vex) {
              ? { text: object.lyric.text }
              : null
 
+    this.positions = object.positions
+
     this.type = "note"
   }
 
-/* Standardize a key string, returning the result */
+  // Standardize a key string, returning the result
   Vex.Flow.Measure.Note.Key = function(key) {
-  // Remove natural, get properties
+    // Remove natural, get properties
     let keyProperties = Vex.Flow.keyProperties(key.replace(/n/i, ""), "treble")
     return keyProperties.key + "/" + keyProperties.octave.toString()
   }
-/* Default accidental value from key */
+
+  // Default accidental value from key
   Vex.Flow.Measure.Note.Key.GetAccidental = function(key) {
-  // Keep natural, return accidental from properties
+    // Keep natural, return accidental from properties
     return Vex.Flow.keyProperties(key, "treble").accidental
   }
+
   return Vex
 }

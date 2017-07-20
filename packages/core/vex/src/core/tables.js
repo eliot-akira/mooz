@@ -2,9 +2,9 @@
 
 /* eslint-disable key-spacing */
 
-import { Vex } from './vex';
-import { Fraction } from './fraction';
-import { Glyph } from './glyph';
+import { Vex } from './vex'
+import { Fraction } from './fraction'
+import { Glyph } from './glyph'
 
 const Flow = {
   STEM_WIDTH: 1.5,
@@ -26,17 +26,17 @@ const Flow = {
 
   /* Kerning (DEPRECATED) */
   IsKerned: true,
-};
+}
 
 
 Flow.clefProperties = clef => {
-  if (!clef) throw new Vex.RERR('BadArgument', 'Invalid clef: ' + clef);
+  if (!clef) throw new Vex.RERR('BadArgument', 'Invalid clef: ' + clef)
 
-  const props = Flow.clefProperties.values[clef];
-  if (!props) throw new Vex.RERR('BadArgument', 'Invalid clef: ' + clef);
+  const props = Flow.clefProperties.values[clef]
+  if (!props) throw new Vex.RERR('BadArgument', 'Invalid clef: ' + clef)
 
-  return props;
-};
+  return props
+}
 
 Flow.clefProperties.values = {
   'treble': { line_shift: 0 },
@@ -50,7 +50,7 @@ Flow.clefProperties.values = {
   'baritone-f': { line_shift: 5 },
   'subbass': { line_shift: 7 },
   'french': { line_shift: -1 },
-};
+}
 
 /*
   Take a note in the format "Key/Octave" (e.g., "C/5") and return properties.
@@ -60,54 +60,54 @@ Flow.clefProperties.values = {
 */
 Flow.keyProperties = (key, clef, params) => {
   if (clef === undefined) {
-    clef = 'treble';
+    clef = 'treble'
   }
 
-  const options = { octave_shift: 0 };
+  const options = { octave_shift: 0 }
 
   if (typeof params === 'object') {
-    Vex.Merge(options, params);
+    Vex.Merge(options, params)
   }
 
-  const pieces = key.split('/');
+  const pieces = key.split('/')
 
   if (pieces.length < 2) {
-    throw new Vex.RERR('BadArguments', `Key must have note + octave and an optional glyph: ${key}`);
+    throw new Vex.RERR('BadArguments', `Key must have note + octave and an optional glyph: ${key}`)
   }
 
-  const k = pieces[0].toUpperCase();
-  const value = Flow.keyProperties.note_values[k];
-  if (!value) throw new Vex.RERR('BadArguments', 'Invalid key name: ' + k);
-  if (value.octave) pieces[1] = value.octave;
+  const k = pieces[0].toUpperCase()
+  const value = Flow.keyProperties.note_values[k]
+  if (!value) throw new Vex.RERR('BadArguments', 'Invalid key name: ' + k)
+  if (value.octave) pieces[1] = value.octave
 
-  let octave = parseInt(pieces[1], 10);
+  let octave = parseInt(pieces[1], 10)
 
   // Octave_shift is the shift to compensate for clef 8va/8vb.
-  octave += -1 * options.octave_shift;
+  octave += -1 * options.octave_shift
 
-  const base_index = (octave * 7) - (4 * 7);
-  let line = (base_index + value.index) / 2;
-  line += Flow.clefProperties(clef).line_shift;
+  const base_index = (octave * 7) - (4 * 7)
+  let line = (base_index + value.index) / 2
+  line += Flow.clefProperties(clef).line_shift
 
-  let stroke = 0;
+  let stroke = 0
 
-  if (line <= 0 && (((line * 2) % 2) === 0)) stroke = 1;  // stroke up
-  if (line >= 6 && (((line * 2) % 2) === 0)) stroke = -1; // stroke down
+  if (line <= 0 && (((line * 2) % 2) === 0)) stroke = 1  // stroke up
+  if (line >= 6 && (((line * 2) % 2) === 0)) stroke = -1 // stroke down
 
   // Integer value for note arithmetic.
   const int_value = typeof(value.int_val) !== 'undefined'
     ? (octave * 12) + value.int_val
-    : null;
+    : null
 
   /* Check if the user specified a glyph. */
-  let code = value.code;
-  let shift_right = value.shift_right;
+  let code = value.code
+  let shift_right = value.shift_right
   if (pieces.length > 2 && pieces[2]) {
-    const glyph_name = pieces[2].toUpperCase();
-    const note_glyph = Flow.keyProperties.note_glyph[glyph_name];
+    const glyph_name = pieces[2].toUpperCase()
+    const note_glyph = Flow.keyProperties.note_glyph[glyph_name]
     if (note_glyph) {
-      code = note_glyph.code;
-      shift_right = note_glyph.shift_right;
+      code = note_glyph.code
+      shift_right = note_glyph.shift_right
     }
   }
 
@@ -121,8 +121,8 @@ Flow.keyProperties = (key, clef, params) => {
     stroke,
     shift_right,
     displaced: false,
-  };
-};
+  }
+}
 
 Flow.keyProperties.note_values = {
   'C': { index: 0, int_val: 0, accidental: null },
@@ -175,7 +175,7 @@ Flow.keyProperties.note_values = {
     code: 'v3e',
     shift_right: 5.5,
   },
-};
+}
 
 Flow.keyProperties.note_glyph = {
   /* Diamond */
@@ -195,24 +195,24 @@ Flow.keyProperties.note_glyph = {
   'X1': { code: 'v95', shift_right: -0.5 },
   'X2': { code: 'v7f', shift_right: 0.5 },
   'X3': { code: 'v3b', shift_right: -2 },
-};
+}
 
 Flow.integerToNote = integer => {
   if (typeof(integer) === 'undefined') {
-    throw new Vex.RERR('BadArguments', 'Undefined integer for integerToNote');
+    throw new Vex.RERR('BadArguments', 'Undefined integer for integerToNote')
   }
 
   if (integer < -2) {
-    throw new Vex.RERR('BadArguments', `integerToNote requires integer > -2: ${integer}`);
+    throw new Vex.RERR('BadArguments', `integerToNote requires integer > -2: ${integer}`)
   }
 
-  const noteValue = Flow.integerToNote.table[integer];
+  const noteValue = Flow.integerToNote.table[integer]
   if (!noteValue) {
-    throw new Vex.RERR('BadArguments', `Unknown note value for integer: ${integer}`);
+    throw new Vex.RERR('BadArguments', `Unknown note value for integer: ${integer}`)
   }
 
-  return noteValue;
-};
+  return noteValue
+}
 
 Flow.integerToNote.table = {
   0: 'C',
@@ -227,21 +227,21 @@ Flow.integerToNote.table = {
   9: 'A',
   10: 'A#',
   11: 'B',
-};
+}
 
 
 Flow.tabToGlyph = (fret, scale = 1.0) => {
-  let glyph = null;
-  let width = 0;
-  let shift_y = 0;
+  let glyph = null
+  let width = 0
+  let shift_y = 0
 
   if (fret.toString().toUpperCase() === 'X') {
-    const glyphMetrics = new Glyph('v7f', Flow.DEFAULT_TABLATURE_FONT_SCALE).getMetrics();
-    glyph = 'v7f';
-    width = glyphMetrics.width;
-    shift_y = -glyphMetrics.height / 2;
+    const glyphMetrics = new Glyph('v7f', Flow.DEFAULT_TABLATURE_FONT_SCALE).getMetrics()
+    glyph = 'v7f'
+    width = glyphMetrics.width
+    shift_y = -glyphMetrics.height / 2
   } else {
-    width = Flow.textWidth(fret.toString());
+    width = Flow.textWidth(fret.toString())
   }
 
   return {
@@ -249,12 +249,12 @@ Flow.tabToGlyph = (fret, scale = 1.0) => {
     code: glyph,
     getWidth: () => width * scale,
     shift_y,
-  };
-};
+  }
+}
 
-Flow.textWidth = text => 7 * text.toString().length;
+Flow.textWidth = text => 7 * text.toString().length
 
-Flow.articulationCodes = artic => Flow.articulationCodes.articulations[artic];
+Flow.articulationCodes = artic => Flow.articulationCodes.articulations[artic]
 
 Flow.articulationCodes.articulations = {
   'a.': { code: 'v23', between_lines: true }, // Staccato
@@ -270,9 +270,9 @@ Flow.articulationCodes.articulations = {
   'a|': { code: 'v75', between_lines: false }, // Bow up - up stroke
   'am': { code: 'v97', between_lines: false }, // Bow down - down stroke
   'a,': { code: 'vb3', between_lines: false }, // Choked
-};
+}
 
-Flow.accidentalCodes = acc => Flow.accidentalCodes.accidentals[acc];
+Flow.accidentalCodes = acc => Flow.accidentalCodes.accidentals[acc]
 
 Flow.accidentalCodes.accidentals = {
   '#':   { code: 'v18', parenRightPaddingAdjustment: -1 },
@@ -293,7 +293,7 @@ Flow.accidentalCodes.accidentals = {
   'bss': { code: 'v39', parenRightPaddingAdjustment: -1 },
   'o':   { code: 'vd0', parenRightPaddingAdjustment: -1 },
   'k':   { code: 'vd1', parenRightPaddingAdjustment: -1 },
-};
+}
 
 Flow.accidentalColumnsTable = {
   1: {
@@ -324,9 +324,9 @@ Flow.accidentalColumnsTable = {
     spaced_out_hexachord: [1, 3, 2, 1, 3, 2],
     very_spaced_out_hexachord: [1, 2, 1, 2, 1, 2],
   },
-};
+}
 
-Flow.ornamentCodes = acc => Flow.ornamentCodes.ornaments[acc];
+Flow.ornamentCodes = acc => Flow.ornamentCodes.ornaments[acc]
 
 Flow.ornamentCodes.ornaments = {
   'mordent': { code: 'v1e' },
@@ -342,29 +342,29 @@ Flow.ornamentCodes.ornaments = {
   'downmordent': { code: 'v68' },
   'lineprall': { code: 'v20' },
   'prallprall': { code: 'v86' },
-};
+}
 
 Flow.keySignature = spec => {
-  const keySpec = Flow.keySignature.keySpecs[spec];
+  const keySpec = Flow.keySignature.keySpecs[spec]
 
   if (!keySpec) {
-    throw new Vex.RERR('BadKeySignature', `Bad key signature spec: '${spec}'`);
+    throw new Vex.RERR('BadKeySignature', `Bad key signature spec: '${spec}'`)
   }
 
   if (!keySpec.acc) {
-    return [];
+    return []
   }
 
-  const notes = Flow.keySignature.accidentalList(keySpec.acc);
+  const notes = Flow.keySignature.accidentalList(keySpec.acc)
 
-  const acc_list = [];
+  const acc_list = []
   for (let i = 0; i < keySpec.num; ++i) {
-    const line = notes[i];
-    acc_list.push({ type: keySpec.acc, line });
+    const line = notes[i]
+    acc_list.push({ type: keySpec.acc, line })
   }
 
-  return acc_list;
-};
+  return acc_list
+}
 
 Flow.keySignature.keySpecs = {
   'C': { acc: null, num: 0 },
@@ -397,7 +397,7 @@ Flow.keySignature.keySpecs = {
   'D#m': { acc: '#', num: 6 },
   'C#': { acc: '#', num: 7 },
   'A#m': { acc: '#', num: 7 },
-};
+}
 
 Flow.unicode = {
   // Unicode accidentals
@@ -411,84 +411,84 @@ Flow.unicode = {
    // Diminished
   'degrees': String.fromCharCode(parseInt('00B0', 16)),
   'circle': String.fromCharCode(parseInt('25CB', 16)),
-};
+}
 
 Flow.keySignature.accidentalList = (acc) => {
   const patterns = {
     'b': [2, 0.5, 2.5, 1, 3, 1.5, 3.5],
     '#': [0, 1.5, -0.5, 1, 2.5, 0.5, 2],
-  };
+  }
 
-  return patterns[acc];
-};
+  return patterns[acc]
+}
 
 Flow.parseNoteDurationString = durationString => {
   if (typeof(durationString) !== 'string') {
-    return null;
+    return null
   }
 
-  const regexp = /(\d*\/?\d+|[a-z])(d*)([nrhms]|$)/;
+  const regexp = /(\d*\/?\d+|[a-z])(d*)([nrhms]|$)/
 
-  const result = regexp.exec(durationString);
+  const result = regexp.exec(durationString)
   if (!result) {
-    return null;
+    return null
   }
 
-  const duration = result[1];
-  const dots = result[2].length;
-  let type = result[3];
+  const duration = result[1]
+  const dots = result[2].length
+  let type = result[3]
 
   if (type.length === 0) {
-    type = 'n';
+    type = 'n'
   }
 
   return {
     duration,
     dots,
     type,
-  };
-};
+  }
+}
 
 Flow.parseNoteData = noteData => {
-  const duration = noteData.duration;
+  const duration = noteData.duration
 
   // Preserve backwards-compatibility
-  const durationStringData = Flow.parseNoteDurationString(duration);
+  const durationStringData = Flow.parseNoteDurationString(duration)
   if (!durationStringData) {
-    return null;
+    return null
   }
 
-  let ticks = Flow.durationToTicks(durationStringData.duration);
+  let ticks = Flow.durationToTicks(durationStringData.duration)
   if (ticks == null) {
-    return null;
+    return null
   }
 
-  let type = noteData.type;
+  let type = noteData.type
 
   if (type) {
     if (!(type === 'n' || type === 'r' || type === 'h' || type === 'm' || type === 's')) {
-      return null;
+      return null
     }
   } else {
-    type = durationStringData.type;
+    type = durationStringData.type
     if (!type) {
-      type = 'n';
+      type = 'n'
     }
   }
 
-  const dots = noteData.dots ? noteData.dots : durationStringData.dots;
+  const dots = noteData.dots ? noteData.dots : durationStringData.dots
 
   if (typeof(dots) !== 'number') {
-    return null;
+    return null
   }
 
-  let currentTicks = ticks;
+  let currentTicks = ticks
 
   for (let i = 0; i < dots; i++) {
-    if (currentTicks <= 1) return null;
+    if (currentTicks <= 1) return null
 
-    currentTicks = currentTicks / 2;
-    ticks += currentTicks;
+    currentTicks = currentTicks / 2
+    ticks += currentTicks
   }
 
   return {
@@ -496,45 +496,46 @@ Flow.parseNoteData = noteData => {
     type,
     dots,
     ticks,
-  };
-};
+  }
+}
 
 // Used to convert duration aliases to the number based duration.
 // If the input isn't an alias, simply return the input.
 //
 // example: 'q' -> '4', '8' -> '8'
 Flow.sanitizeDuration = duration => {
-  const alias = Flow.durationAliases[duration];
+  const alias = Flow.durationAliases[duration]
   if (alias !== undefined) {
-    duration = alias;
+    duration = alias
   }
 
   if (Flow.durationToTicks.durations[duration] === undefined) {
-    throw new Vex.RERR('BadArguments', `The provided duration is not valid: ${duration}`);
+    throw new Vex.RERR('BadArguments', `The provided duration is not valid: ${duration}`)
   }
 
-  return duration;
-};
+  return duration
+}
 
 // Convert the `duration` to an fraction
-Flow.durationToFraction = duration => new Fraction().parse(Flow.sanitizeDuration(duration));
+Flow.durationToFraction = duration => new Fraction().parse(Flow.sanitizeDuration(duration))
 
 // Convert the `duration` to an number
-Flow.durationToNumber = duration => Flow.durationToFraction(duration).value();
+Flow.durationToNumber = duration => Flow.durationToFraction(duration).value()
 
 // Convert the `duration` to total ticks
 Flow.durationToTicks = duration => {
-  duration = Flow.sanitizeDuration(duration);
+  duration = Flow.sanitizeDuration(duration)
 
-  const ticks = Flow.durationToTicks.durations[duration];
+  const ticks = Flow.durationToTicks.durations[duration]
   if (ticks === undefined) {
-    return null;
+    return null
   }
 
-  return ticks;
-};
+  return ticks
+}
 
 Flow.durationToTicks.durations = {
+  '1/4': Flow.RESOLUTION * 4,
   '1/2': Flow.RESOLUTION * 2,
   '1': Flow.RESOLUTION / 1,
   '2': Flow.RESOLUTION / 2,
@@ -545,7 +546,7 @@ Flow.durationToTicks.durations = {
   '64': Flow.RESOLUTION / 64,
   '128': Flow.RESOLUTION / 128,
   '256': Flow.RESOLUTION / 256,
-};
+}
 
 Flow.durationAliases = {
   'w': '1',
@@ -557,33 +558,75 @@ Flow.durationAliases = {
   //
   // TODO(0xfe): This needs to be cleaned up.
   'b': '256',
-};
+}
 
 Flow.durationToGlyph = (duration, type) => {
-  duration = Flow.sanitizeDuration(duration);
+  duration = Flow.sanitizeDuration(duration)
 
-  const code = Flow.durationToGlyph.duration_codes[duration];
+  const code = Flow.durationToGlyph.duration_codes[duration]
   if (code === undefined) {
-    return null;
+    return null
   }
 
   if (!type) {
-    type = 'n';
+    type = 'n'
   }
 
-  const glyphTypeProperties = code.type[type];
+  const glyphTypeProperties = code.type[type]
   if (glyphTypeProperties === undefined) {
-    return null;
+    return null
   }
 
-  return Vex.Merge(Vex.Merge({}, code.common), glyphTypeProperties);
-};
+  return Vex.Merge(Vex.Merge({}, code.common), glyphTypeProperties)
+}
 
 Flow.durationToGlyph.duration_codes = {
+  '1/4': {
+    common: {
+      getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
+        return new Glyph(this.code_head || 'v53', scale).getMetrics().width
+      },
+      stem: true,
+      stem_offset: 0,
+      flag: false,
+      stem_up_extension: -Flow.STEM_HEIGHT,
+      stem_down_extension: -Flow.STEM_HEIGHT,
+      gracenote_stem_up_extension: -Flow.STEM_HEIGHT,
+      gracenote_stem_down_extension: -Flow.STEM_HEIGHT,
+      tabnote_stem_up_extension: -Flow.STEM_HEIGHT,
+      tabnote_stem_down_extension: -Flow.STEM_HEIGHT,
+      dot_shiftY: 0,
+      line_above: 0,
+      line_below: 0,
+    },
+    type: {
+      'n': { // Breve note
+        code_head: 'v53',
+      },
+      'h': { // Breve note harmonic
+        code_head: 'v59',
+      },
+      'm': { // Breve note muted -
+        code_head: 'vf',
+        stem_offset: 0,
+      },
+      'r': { // Breve rest
+        code_head: 'v31',
+        rest: true,
+        position: 'B/5',
+        dot_shiftY: 0.5,
+      },
+      's': { // Breve note slash -
+        // Drawn with canvas primitives
+        getWidth: () => Flow.SLASH_NOTEHEAD_WIDTH,
+        position: 'B/4',
+      },
+    },
+  },
   '1/2': {
     common: {
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'v53', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'v53', scale).getMetrics().width
       },
       stem: false,
       stem_offset: 0,
@@ -625,7 +668,7 @@ Flow.durationToGlyph.duration_codes = {
   '1': {
     common: {
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'v1d', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'v1d', scale).getMetrics().width
       },
       stem: false,
       stem_offset: 0,
@@ -667,7 +710,7 @@ Flow.durationToGlyph.duration_codes = {
   '2': {
     common: {
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'v81', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'v81', scale).getMetrics().width
       },
       stem: true,
       stem_offset: 0,
@@ -710,7 +753,7 @@ Flow.durationToGlyph.duration_codes = {
   '4': {
     common: {
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'vb', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'vb', scale).getMetrics().width
       },
       stem: true,
       stem_offset: 0,
@@ -755,7 +798,7 @@ Flow.durationToGlyph.duration_codes = {
   '8': {
     common: {
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'vb', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'vb', scale).getMetrics().width
       },
       stem: true,
       stem_offset: 0,
@@ -804,7 +847,7 @@ Flow.durationToGlyph.duration_codes = {
     common: {
       beam_count: 2,
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'vb', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'vb', scale).getMetrics().width
       },
       stem: true,
       stem_offset: 0,
@@ -852,7 +895,7 @@ Flow.durationToGlyph.duration_codes = {
     common: {
       beam_count: 3,
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'vb', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'vb', scale).getMetrics().width
       },
       stem: true,
       stem_offset: 0,
@@ -900,7 +943,7 @@ Flow.durationToGlyph.duration_codes = {
     common: {
       beam_count: 4,
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'vb', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'vb', scale).getMetrics().width
       },
       stem: true,
       stem_offset: 0,
@@ -948,7 +991,7 @@ Flow.durationToGlyph.duration_codes = {
     common: {
       beam_count: 5,
       getWidth(scale = Flow.DEFAULT_NOTATION_FONT_SCALE) {
-        return new Glyph(this.code_head || 'vb', scale).getMetrics().width;
+        return new Glyph(this.code_head || 'vb', scale).getMetrics().width
       },
       stem: true,
       stem_offset: 0,
@@ -992,12 +1035,12 @@ Flow.durationToGlyph.duration_codes = {
       },
     },
   },
-};
+}
 
 // Some defaults
 Flow.TIME4_4 = {
   num_beats: 4,
   beat_value: 4,
   resolution: Flow.RESOLUTION,
-};
-export { Flow };
+}
+export { Flow }

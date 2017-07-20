@@ -7,15 +7,16 @@
 //
 // See `tests/clef_tests.js` for usage examples.
 
-import { Vex } from './vex';
-import { StaveModifier } from './stavemodifier';
-import { Glyph } from './glyph';
+import { Vex } from './vex'
+import { Modifier } from './modifier'
+import { StaveModifier } from './stavemodifier'
+import { Glyph } from './glyph'
 
 // To enable logging for this class, set `Vex.Flow.Clef.DEBUG` to `true`.
-function L(...args) { if (Clef.DEBUG) Vex.L('Vex.Flow.Clef', args); }
+function L(...args) { if (Clef.DEBUG) Vex.L('Vex.Flow.Clef', args) }
 
 export class Clef extends StaveModifier {
-  static get CATEGORY() { return 'clefs'; }
+  static get CATEGORY() { return 'clefs' }
 
   // Every clef name is associated with a glyph code from the font file
   // and a default stave line number.
@@ -68,7 +69,7 @@ export class Clef extends StaveModifier {
       'tab': {
         code: 'v2f',
       },
-    };
+    }
   }
 
   // Sizes affect the point-size of the clef.
@@ -76,7 +77,7 @@ export class Clef extends StaveModifier {
     return {
       'default': 40,
       'small': 32,
-    };
+    }
   }
 
   // Annotations attach to clefs -- such as "8" for octave up or down.
@@ -136,119 +137,147 @@ export class Clef extends StaveModifier {
           },
         },
       },
-    };
+    }
   }
 
   // Create a new clef. The parameter `clef` must be a key from
   // `Clef.types`.
   constructor(type, size, annotation) {
-    super();
-    this.setAttribute('type', 'Clef');
+    super()
+    this.setAttribute('type', 'Clef')
 
-    this.setPosition(StaveModifier.Position.BEGIN);
-    this.setType(type, size, annotation);
-    this.setWidth(this.glyph.getMetrics().width);
-    L('Creating clef:', type);
+    this.setPosition(StaveModifier.Position.BEGIN)
+    this.setType(type, size, annotation)
+    this.setWidth(this.glyph.getMetrics().width)
+    L('Creating clef:', type)
   }
 
-  getCategory() { return Clef.CATEGORY; }
+  getCategory() { return Clef.CATEGORY }
 
   setType(type, size, annotation) {
-    this.type = type;
-    this.clef = Clef.types[type];
+    this.type = type
+    this.clef = Clef.types[type]
     if (size === undefined) {
-      this.size = 'default';
+      this.size = 'default'
     } else {
-      this.size = size;
+      this.size = size
     }
-    this.clef.point = Clef.sizes[this.size];
-    this.glyph = new Glyph(this.clef.code, this.clef.point);
+    this.clef.point = Clef.sizes[this.size]
+    this.glyph = new Glyph(this.clef.code, this.clef.point)
 
     // If an annotation, such as 8va, is specified, add it to the Clef object.
     if (annotation !== undefined) {
-      const anno_dict = Clef.annotations[annotation];
+      const anno_dict = Clef.annotations[annotation]
       this.annotation = {
         code: anno_dict.code,
         point: anno_dict.sizes[this.size].point,
         line: anno_dict.sizes[this.size].attachments[this.type].line,
         x_shift: anno_dict.sizes[this.size].attachments[this.type].x_shift,
-      };
+      }
 
-      this.attachment = new Glyph(this.annotation.code, this.annotation.point);
-      this.attachment.metrics.x_max = 0;
-      this.attachment.setXShift(this.annotation.x_shift);
+      this.attachment = new Glyph(this.annotation.code, this.annotation.point)
+      this.attachment.metrics.x_max = 0
+      this.attachment.setXShift(this.annotation.x_shift)
     } else {
-      this.annotation = undefined;
+      this.annotation = undefined
     }
 
-    return this;
+    return this
   }
 
   getWidth() {
     if (this.type === 'tab' && !this.stave) {
-      throw new Vex.RERR('ClefError', "Can't get width without stave.");
+      throw new Vex.RERR('ClefError', "Can't get width without stave.")
     }
 
-    return this.width;
+    return this.width
   }
 
   setStave(stave) {
-    this.stave = stave;
+    this.stave = stave
 
-    if (this.type !== 'tab') return this;
+    if (this.type !== 'tab') return this
 
-    let glyphScale;
-    let glyphOffset;
-    const numLines = this.stave.getOptions().num_lines;
+    let glyphScale
+    let glyphOffset
+    const numLines = this.stave.getOptions().num_lines
     switch (numLines) {
-      case 8:
-        glyphScale = 55;
-        glyphOffset = 14;
-        break;
-      case 7:
-        glyphScale = 47;
-        glyphOffset = 8;
-        break;
-      case 6:
-        glyphScale = 40;
-        glyphOffset = 1;
-        break;
-      case 5:
-        glyphScale = 30;
-        glyphOffset = -6;
-        break;
-      case 4:
-        glyphScale = 23;
-        glyphOffset = -12;
-        break;
-      default:
-        throw new Vex.RERR('ClefError', `Invalid number of lines: ${numLines}`);
+    case 8:
+      glyphScale = 55
+      glyphOffset = 14
+      break
+    case 7:
+      glyphScale = 47
+      glyphOffset = 8
+      break
+    case 6:
+      glyphScale = 40
+      glyphOffset = 1
+      break
+    case 5:
+      glyphScale = 30
+      glyphOffset = -6
+      break
+    case 4:
+      glyphScale = 23
+      glyphOffset = -12
+      break
+    default:
+      throw new Vex.RERR('ClefError', `Invalid number of lines: ${numLines}`)
     }
 
-    this.glyph.setPoint(glyphScale);
-    this.glyph.setYShift(glyphOffset);
+    this.glyph.setPoint(glyphScale)
+    this.glyph.setYShift(glyphOffset)
 
-    return this;
+    return this
   }
 
   draw() {
-    if (!this.x) throw new Vex.RERR('ClefError', "Can't draw clef without x.");
-    if (!this.stave) throw new Vex.RERR('ClefError', "Can't draw clef without stave.");
-    this.setRendered();
+    if (!this.x) throw new Vex.RERR('ClefError', "Can't draw clef without x.")
+    if (!this.stave) throw new Vex.RERR('ClefError', "Can't draw clef without stave.")
+    this.setRendered()
 
-    this.glyph.setStave(this.stave);
-    this.glyph.setContext(this.stave.context);
-    if (this.clef.line !== undefined) {
-      this.placeGlyphOnLine(this.glyph, this.stave, this.clef.line);
+    if (this.type !== 'tab') {
+
+      // Default clefs
+
+      this.glyph.setStave(this.stave)
+      this.glyph.setContext(this.stave.context)
+      if (this.clef.line !== undefined) {
+        this.placeGlyphOnLine(this.glyph, this.stave, this.clef.line)
+      }
+
+      this.glyph.renderToStave(this.x + 5) // Left pad for clef
+
+      if (this.annotation !== undefined) {
+        this.placeGlyphOnLine(this.attachment, this.stave, this.annotation.line)
+        this.attachment.setStave(this.stave)
+        this.attachment.setContext(this.stave.context)
+        this.attachment.renderToStave(this.x)
+      }
+
+    } else {
+
+      // Draw better tab clef
+
+      //const halfHeight = (stave.getBottomLineY() - stave.getYForLine(1)) / 2
+
+      const shift_x = 48 // TODO: Get this from stave
+
+      this.stave.setText('T', Modifier.Position.LEFT, { shift_x, shift_y: -23 })
+      this.stave.setText('A', Modifier.Position.LEFT, { shift_x, shift_y: -3 })
+      this.stave.setText('B', Modifier.Position.LEFT, { shift_x, shift_y: 17 })
+
+      const mods = this.stave.getModifiers()
+
+      for (let i = 0; i < 3; i++) {
+        mods[ mods.length - i - 1 ].setFont({
+          family: 'sans-serif',
+          size: 16
+        })
+      }
     }
 
-    this.glyph.renderToStave(this.x);
 
-    if (this.annotation !== undefined) {
-      this.placeGlyphOnLine(this.attachment, this.stave, this.annotation.line);
-      this.attachment.setStave(this.stave);
-      this.attachment.setContext(this.stave.context);
-      this.attachment.renderToStave(this.x);
-    }
   }
 }

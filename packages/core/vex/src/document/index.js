@@ -1,7 +1,7 @@
 module.exports = function(Vex) {
   require('./measure')(Vex)
-  require('./musicxml')(Vex)
   require('./document')(Vex)
-  require('./documentformatter')(Vex)
+  require('./formatter')(Vex)
+  require('./liquid')(Vex) // Must be after formatter
   return Vex
 }
