@@ -1,0 +1,11 @@
+{
+  "name": "mooz",
+  "description": "Mooz: Base",
+  "version": "0.0.3",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {},
+  "repository": "https://github.com/eliot-akira/mooz/packages/base",
+  "author": "Eliot Akira",
+  "license": "MIT"
+}

@@ -1,2 +1,0 @@
-
-Shortcuts to core methods

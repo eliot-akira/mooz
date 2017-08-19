@@ -1,0 +1,133 @@
+
+
+// Marker
+
+$marker-font-size: 16px;
+
+.marker-base {
+  border: 1px solid transparent;
+  color: #fff;
+
+  font-size: $marker-font-size;
+  z-index: 1;
+}
+
+.marker {
+  vertical-align: middle;
+  display: inline;
+  //transition: background-color 0.1s;
+  //cursor: default;
+}
+.marker--highlight {
+  background-color: #555;
+}
+
+.marker--object {
+  display: inline-block;
+  width: $marker-size;
+  height: $marker-size;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.marker--object-text-container {
+/*  display: inline-block;
+  vertical-align: middle;*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+
+// Marker colors
+
+.marker-white {
+  color: #555;
+  background-color: #fff;
+  border-color: #ddd;
+}
+
+// Black: 0 = P1
+.marker-black, .marker-rainbow-0 {
+  background-color: #000;
+  color: white;
+}
+
+// Light blue, Minor: 1 = m2, 8 = m6
+.marker-rainbow-1, .marker-rainbow-8 {
+  background-color: #d5eaff;
+  color: #555;
+}
+
+// Yellow, Major: 2 = M2, 9 = M6, 11 = M7
+.marker-rainbow-2, .marker-rainbow-9, .marker-rainbow-11 {
+  background-color: #ffe600;
+  color: #555;
+}
+
+// Blue: 3 = m3
+.marker-blue, .marker-rainbow-3 {
+  background-color: #3f86ce;
+}
+
+// Orange: 4 = M3, Little strong than P4
+.marker-rainbow-4 {
+  background-color: #ff9b45;
+}
+
+// Pink: 5 = P4
+.marker-rainbow-5 {
+  background-color: #ffa096;
+}
+
+// Gray: 6 = T
+.marker-rainbow-6 {
+  background-color: #fafafa;
+  color: #aaa;
+  border-color: #eee;
+}
+.marker-gray {
+  background-color: #999;
+  color: #aaa;
+  border-color: #eee;
+}
+
+// Red: 7 = P5
+.marker-rainbow-7 {
+  background-color: #e74c3c;
+}
+
+// Bluegreen: 10 = m7
+.marker-rainbow-10 {
+  background-color: #1abc9c;
+}
+
+.marker-green {
+  background-color: #3d9970;
+  border-color: #3d9970;
+}
+
+.marker-shadow {
+  color: #000;
+  background-color: #e5e5e5;
+  border-color: #ddd;
+  //background-color: #fafafa;
+  //background-color: #fff;
+  //border-color: #eee;
+}
+
+.marker-preview {
+  color: #555;
+  background-color: #fafafa;
+}
+.marker-preview-first-note {
+  color: #fff;
+  background-color: #3f86ce;
+}
+.marker-preview,
+.marker-preview-first-note {
+  border-color: #ddd;
+  opacity: 0.4;
+}

@@ -1,0 +1,99 @@
+$piano-key-height: 160px;
+$piano-key-border: 1px solid #aaa;
+$piano-black-key-border: 1px solid #999;
+$piano-black-key-width: 65%;
+$piano-key-highlight-background: #555;
+$piano-outer-border-radius: 3px;
+
+.piano {
+  overflow: hidden;
+  //border-right: $piano-key-border;
+  &:before, &:before {
+
+  }
+}
+
+.piano--octave {
+  //display: inline;
+  //float: left
+}
+.piano--key-wrap {
+  position: relative;
+  //display: inline-block;
+  float: left;
+
+  &:first-child .piano--white-key {
+    border-top-left-radius: $piano-outer-border-radius;
+    border-bottom-left-radius: $piano-outer-border-radius;
+  }
+  &:last-child .piano--white-key {
+    border-right: $piano-key-border;
+    border-top-right-radius: $piano-outer-border-radius;
+    border-bottom-right-radius: $piano-outer-border-radius;
+  }
+}
+
+.piano--key {
+  height: $piano-key-height;
+  transition: background-color 0.1s;
+}
+.piano--white-key {
+  background: #fff;
+  border-top: $piano-key-border;
+  border-bottom: $piano-key-border;
+  border-left: $piano-key-border;
+
+  &.piano--key-highlight {
+    background: $piano-key-highlight-background;
+    color: #fafafa;
+  }
+}
+
+.piano--black-key {
+  position: absolute;
+  z-index: 1;
+
+  top: 0 - ($piano-key-height / 2);
+
+  right: 0 - ($piano-black-key-width / 2); //-37.5%;
+  width: $piano-black-key-width;
+
+  border: $piano-black-key-border;
+  border-bottom-left-radius: $piano-outer-border-radius;
+  border-bottom-right-radius: $piano-outer-border-radius;
+
+  //margin-left: -1px; // White key border offset
+
+  background: #545454;
+
+  & .piano--key-text {
+    color: #fafafa;
+  }
+  &.piano--key-highlight {
+    background: $piano-key-highlight-background;
+  }
+}
+
+.piano--key-text {
+  //vertical-align: bottom;
+  //line-height: $piano-key-height + ($piano-key-height / 1) - 90px;
+  position: absolute;
+  bottom: 30px;
+  width: 100%;
+  font-size: 13px;
+}
+
+.piano--key-marker {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.piano--key-marker-dot {
+  width: 8px;
+  padding: 8px;
+  margin: 0 auto 10px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background-color: #aaa;
+}

@@ -1,0 +1,46 @@
+// Should have height set
+.string {
+
+  flex-grow: 1;
+  position: relative;
+
+  border-left: $nut-width solid $nut-color;
+}
+
+.string--spacer {
+  flex-grow: 0;
+}
+
+.string--container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.string--background {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.string--top, .string--bottom { flex-grow: 1; }
+
+.string--line {
+  border-bottom: 1px solid $string-color;
+}
+
+.markers--container,
+.frets--container {
+
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.markers--container {
+  left: $nut-width;
+}
