@@ -1,7 +1,7 @@
 {
   "name": "wavpack",
   "description": "Wavpack: Generate JSON from WAV and MP3 files",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "index.js",
   "bin": {
     "wavpack": "bin/wavpack"

@@ -6,6 +6,8 @@ const base64 = require('base64-stream')
 const glob = require('glob')
 const mkdirp = require('mkdirp').sync
 
+const getNoteName = require('./getNoteName')
+
 const cwd = process.cwd()
 const srcPath = process.argv[2]
 const destPath = process.argv[3] || '.'
@@ -18,7 +20,7 @@ const files = glob.sync(path.join(srcPath, '**/*.wav'), {
 })
 
 if (!files.length) {
-  console.log(`No .wav files foound in "${srcPath}"`)
+  console.log(`No .wav files found in "${srcPath}"`)
   process.exit(1)
 }
 
@@ -36,7 +38,7 @@ Promise.all(files.map((srcFile, fileIndex) => {
   const parts = srcFile.split('/')
   const folderName = parts[parts.length - 2]
   const fileName = parts[parts.length - 1]
-  const note = fileName.split('.').slice(0, -1)
+  const note = getNoteName(fileName)
   const srcFileFolder = parts.slice(0, -1).join('/')
   const tmpFile = path.join(srcFileFolder, `${note}.tmp`)
 
@@ -125,8 +127,6 @@ Promise.all(files.map((srcFile, fileIndex) => {
   })
 
 })
-
-
 
 function usage() {
   console.log('Usage: wavpack [source folder]')
