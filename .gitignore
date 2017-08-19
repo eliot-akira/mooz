@@ -2,7 +2,9 @@
 # Ignore bigger files until ready
 
 assets
-packages/static/instruments
+
+packages/static
+#packages/static/instruments
 !packages/static/instruments/
 packages/static/instruments/*
 !packages/static/instruments/metronome*
